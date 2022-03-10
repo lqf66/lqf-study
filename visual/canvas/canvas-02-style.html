@@ -1,0 +1,136 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-25 15:58:34
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-27 15:23:57
+ * @Description: 颜色渐变，样式绘图
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas-style</title>
+  <style>
+    * {
+      border: 0;
+      margin: 0;
+      overflow: hidden
+    }
+
+    #canvas {
+      /* background-color: antiquewhite; */
+      background-color: black;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas" width="700" height="500"></canvas>
+
+  <script>
+    const canvas = document.querySelector('#canvas')
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+
+    const ctx = canvas.getContext('2d')
+
+    // // 1. 建立渐变对象,定义渐变区域 
+    // // 线性渐变 createLinearGradient(x1, y1, x2, y2)
+    // const gr = ctx.createLinearGradient(50, 50, 450, 450)
+    // // 径向渐变 createRadialGradient(x1, y1, r1, x2, y2, r2)
+    // const gr = ctx.createRadialGradient(300, 300, 0, 250, 250, 200)
+
+    // // 2. 为渐变添加颜色节点 addColorStop(position, color)
+    // gr.addColorStop(0, 'red')
+    // gr.addColorStop(0.5, 'yellow')
+    // gr.addColorStop(1, '#00acec')
+
+    // // 3. 样式赋值
+    // ctx.fillStyle = gr
+
+    // // 4. 绘图
+    // ctx.fillRect(50, 50, 600, 600)
+
+
+    // // 纹理
+    // const img = new Image()
+    // img.src = './images/floor.jpg'
+
+    // img.onload = function () {
+    //   const pt = ctx.createPattern(img, 'repeat-x')
+    //   ctx.fillStyle = pt
+    //   ctx.fillRect(0, 0, canvas.width, canvas.height)
+    // }
+
+
+
+    // // 描边样式
+    // ctx.lineWidth = 40
+    // // lineCap 描边端点样式
+    // // ctx.lineCap = 'butt'
+    // // ctx.lineCap = 'round'
+    // ctx.lineCap = 'square'
+    // ctx.beginPath();
+    // ctx.moveTo(50, 50);
+    // ctx.lineTo(400, 50);
+    // ctx.stroke();
+    // ctx.restore();
+
+    // // lineJoin 拐角类 miter 尖角 round 圆角 bevel 切角
+    // // ctx.lineJoin = 'miter';
+    // // ctx.lineJoin = 'bevel';
+    // ctx.miterLimit = 2;             // 拐角限制
+
+    // ctx.lineJoin = 'round';
+    // ctx.setLineDash([30, 60, 90]);  // 虚线设置
+    // ctx.beginPath();
+    // ctx.lineDashOffset = -90;       // 虚线偏移
+    // ctx.moveTo(50, 50);
+    // ctx.lineTo(400, 50);
+    // ctx.lineTo(200, 150);
+    // ctx.stroke();
+
+    const colors = ['red', 'yellow']
+
+    function draw() {
+      ctx.save()
+      ctx.translate(300, 400)
+      ctx.lineWidth = 10
+      ctx.setLineDash([30])
+      ctx.beginPath()
+      ctx.moveTo(0, 0)
+      // 绘制爱心
+      ctx.bezierCurveTo(-200, -50, -180, -300, 0, -200);
+      ctx.bezierCurveTo(180, -300, 200, -50, 0, 0);
+
+      ctx.shadowColor = 'orange';
+      // ctx.shadowOffsetX = 30;
+      // ctx.shadowOffsetY = 30;
+      for (let i = 40; i > 5; i -= 5) {
+        ctx.shadowBlur = i;  // 投影
+
+        ctx.strokeStyle = colors[0]
+        ctx.stroke()
+
+        ctx.strokeStyle = colors[1]
+        ctx.lineDashOffset = 30
+        ctx.stroke()
+      }
+
+      ctx.restore()
+    }
+
+    setInterval(function () {
+      // 清除画布
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      colors.reverse()
+      draw()
+    }, 200)
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,234 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-27 15:25:22
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-27 16:28:05
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>状态管理 </title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden
+    }
+
+    #canvas {
+      background: antiquewhite;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+
+    // // 保存当前状态：save()  恢复上一次保存的状态：restore()
+    // ctx.save(); //fillStyle #000
+    // ctx.fillStyle = 'green';
+    // ctx.fillRect(50, 50, 400, 200);
+    // ctx.restore(); //fillStyle #000
+    // ctx.fillRect(50, 350, 400, 200);
+
+    // // 移动，旋转，缩放
+    // ctx.translate(300, 300)
+    // ctx.rotate(Math.PI / 24);
+    // ctx.scale(0.5, 1);
+    // ctx.fillStyle = 'black'
+    // ctx.strokeRect(50, 50, 250, 150)
+    // ctx.scale(2, 2);
+    // ctx.strokeRect(50, 50, 250, 150)
+
+    // 时钟
+    const [redA, redB, yellow] = ['#db655c', '#d63d46', '#9f8d7d'];
+    const c = Math.PI * 2
+    const { width, height } = canvas
+
+    //图像源
+    const img = new Image();
+    img.src = './images/mat.jpg';
+
+    !(function render() {
+      ctx.clearRect(0, 0, width, height)
+      draw()
+      requestAnimationFrame(render)
+    })()
+
+    function draw() {
+      ctx.save()
+
+      // 调整中心点位置
+      ctx.translate(width / 2, height / 2)
+      ctx.rotate(-Math.PI / 2)
+
+      // 内外边框 内框 - 145,20 外框 - 155,9
+      const pat = ctx.createPattern(img, 'repeat')
+      ctx.save()
+      ctx.beginPath()
+      ctx.fillStyle = pat
+      ctx.strokeStyle = redA
+      ctx.lineWidth = 20
+      ctx.arc(0, 0, 145, 0, c)
+      ctx.stroke()
+      ctx.fill()
+      ctx.restore();
+
+
+      ctx.save()
+      ctx.lineWidth = 9
+      ctx.strokeStyle = redB
+      ctx.beginPath()
+      ctx.arc(0, 0, 155, 0, c)
+      ctx.stroke()
+      ctx.restore();
+
+      // 15分钟一个的刻度 - 直线 - 90, 120, 4, 15
+      ctx.save()
+      ctx.beginPath()
+      ctx.strokeStyle = redB;
+      ctx.lineWidth = 15
+      for (let i = 0; i < 4; i++) {
+        ctx.moveTo(90, 0)
+        ctx.lineTo(120, 0)
+        ctx.rotate(c / 4)
+        ctx.stroke()
+      }
+      ctx.restore();
+
+      // 5分钟一个的刻度 - 直线 - 90, 120, 12, 6
+      ctx.save()
+      ctx.beginPath()
+      ctx.strokeStyle = yellow;
+      ctx.lineWidth = 6
+      for (let i = 0; i < 12; i++) {
+        if (i % 3) {
+          ctx.moveTo(90, 0)
+          ctx.lineTo(120, 0)
+          ctx.stroke()
+        }
+        ctx.rotate(c / 12)
+      }
+      ctx.restore();
+
+      // 1分钟一个的刻度 - 直线 - 118, 120, 60, 3
+      ctx.save()
+      ctx.beginPath()
+      ctx.strokeStyle = yellow;
+      ctx.lineWidth = 3
+      for (let i = 0; i < 60; i++) {
+        if (i % 5) {
+          ctx.moveTo(118, 0)
+          ctx.lineTo(120, 0)
+          ctx.stroke()
+        }
+        ctx.rotate(c / 60)
+      }
+      ctx.restore();
+
+      // 圆心
+      ctx.save()
+      ctx.beginPath()
+      ctx.fillStyle = redB;
+      ctx.lineWidth = 3
+      ctx.arc(0, 0, 10, 0, c)
+      ctx.fill()
+      ctx.restore();
+
+      const { rh, rm, rs, time } = getRadian()
+
+      // 时针 - 直线 - -20，65，9
+      ctx.save()
+      ctx.beginPath()
+      ctx.rotate(rh)
+      ctx.strokeStyle = yellow;
+      ctx.lineWidth = 9
+      ctx.moveTo(-20, 0)
+      ctx.lineTo(65, 0)
+      ctx.stroke()
+      ctx.restore();
+
+      // 分针 - 直线 - -28，80，4
+      ctx.save()
+      ctx.beginPath()
+      ctx.rotate(rm)
+      ctx.strokeStyle = yellow;
+      ctx.lineWidth = 4
+      ctx.moveTo(-28, 0)
+      ctx.lineTo(80, 0)
+      ctx.stroke()
+      ctx.restore();
+
+      // 秒针 - 直线 - -30，88，2
+      ctx.save()
+      ctx.beginPath()
+      ctx.rotate(rs)
+      ctx.strokeStyle = redB;
+      ctx.lineWidth = 2
+      ctx.moveTo(-30, 0)
+      ctx.lineTo(88, 0)
+      ctx.stroke()
+      ctx.restore();
+
+      //还原上一次save 的状态
+      ctx.restore()
+
+      ctx.save()
+
+      ctx.font = 'bold 150px Arial'
+      ctx.textAlign = 'center'
+      ctx.translate(width / 2, 50)
+
+      // 实体文字
+      ctx.fillStyle = '#a76921';
+      ctx.fillText(time, 0, 100)
+
+      // 投影
+      ctx.shadowColor = 'rgba(0,0,0,0.6)';
+      ctx.shadowOffsetY = 2;
+      ctx.shadowBlur = 4;
+
+      // 实体描边文字
+      ctx.strokeStyle = '#f0d5ac';
+      ctx.lineWidth = 6;
+      ctx.strokeText(time, 0, 100);
+
+      //虚线描边
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 3]);
+      ctx.strokeText(time, 0, 100);
+
+      ctx.restore()
+    }
+
+    function getRadian() {
+      const date = new Date()
+      let h = date.getHours()
+      if (h > 12) h -= 12
+      const m = date.getMinutes()
+      const s = date.getSeconds()
+
+      const rs = c / 60 * s
+      const rm = c / 60 * m + c / 60 / 60 * s
+      const rh = c / 12 * h + c / 12 / 60 * m + c / 12 / 60 / 60 * s
+
+      if (h < 10) { h = '0' + h }
+      if (m < 10) { m = '0' + m }
+      if (s < 10) { s = '0' + s }
+      const time = `${h}:${m}:${s}`
+      return {
+        rs, rm, rh, time
+      }
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,208 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-10-08 11:01:16
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-10-08 16:17:46
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+    }
+
+    .box {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 600px;
+      height: 600px;
+      background: rgba(0, 200, 145, 0.6);
+      display: grid;
+      /* grid-template-columns: repeat(3, 200px);
+      grid-template-rows: 300px 200px; */
+      /* fr将其余空间等分 auto-fill 放入尽可能多的格子 */
+      /* grid-template: 40% 40% 1fr / repeat(auto-fill, 100px); */
+      grid-template: repeat(3, 100px) / repeat(4, 100px);
+      justify-content: center;
+      align-content: center;
+      grid-gap: 3px;
+      grid-template-areas:
+        'a a a d'
+        'e e h g'
+        'e e j g';
+      /* 设置行高列宽 */
+      grid-auto-columns: 100px;
+      grid-auto-rows: 50px;
+    }
+
+    .item {
+      background: #0a56bb;
+      border: 1px solid #fff;
+      box-sizing: border-box;
+      font: 30px / 100px '';
+      text-align: center;
+      color: #fff;
+    }
+
+    .item:nth-child(1) {
+      grid-area: a;
+    }
+
+    .item:nth-child(2) {
+      grid-area: e;
+    }
+
+    .item:nth-child(4) {
+      grid-area: g;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box" id="box">
+    <div class="item">1</div>
+    <div class="item">2</div>
+    <div class="item">3</div>
+    <div class="item">4</div>
+    <div class="item">5</div>
+    <div class="item">6</div>
+    <div class="item">7</div>
+    <div class="item">8</div>
+    <div class="item">9</div>
+    <div class="item">10</div>
+    <div class="item">11</div>
+    <div class="item">12</div>
+  </div>
+  <a href="https://www.baidu.com">百度</a>
+  <!-- <span data-href="https://www.baidu.com">百度</span> -->
+
+  <script>
+
+    // 一、移动端事件
+    // box.ontouchstart = function () {
+    //   console.log('start')
+    // }
+    // box.ontouchmove = function () {
+    //   console.log('move')
+    // }
+    // box.ontouchend = function () {
+    //   console.log('end')
+    // }
+
+    // 1,鼠标在元素身上移动  mousemove 事件
+    // 2,鼠标在元素身上按下  mousedown 事件
+    // 3,鼠标在元素身上抬起  mouseup   事件(不管鼠标是否是在元素身上按下，都可以触发)
+    // touch
+    // 1, 手指在元素身上按下  touchStart
+    // 2, 手指在屏幕中移动    touchMove (在此之前手指必须在元素身上按下，不管移动的时候手指是否在元素身上)
+    // 3, 手指在屏幕中抬起    touchEnd (在此之前，手指必须在元素身上按下，不管抬起的时候手指是否在元素身上)
+
+
+    // 二、移动端点透事件
+    // 1. 移动端鼠标事件延迟300ms
+    // box.onmousedown = function () {
+    //   console.log('click')
+    // }
+
+    // box.ontouchstart = function () {
+    //   setTimeout(() => {
+    //     console.log('touch')
+    //   }, 300)
+    // }
+    // 移动端在点击元素的时候，会立即执行元素身上的touch事件，同时记录点击的坐标点
+    // 等touch事件执行完成之后，会再次坐标中，查找元素，并且执行元素身上的mouse事件  300ms
+    // mouse事件和touch事件可以不在同一个元素身上，只在乎这两个元素是否在同一个坐标点
+
+    // 2. 尽量不在移动端使用鼠标事件（包括a标签），获取属性跳转
+    // box.ontouchstart = function () {
+    //   this.style.display = 'none'
+    // }
+
+    // document.ontouchstart = function (e) {
+    //   console.log(e.target.dataset)
+    //   let target = e.target
+    //   let dataset = target.dataset
+    //   if (dataset.hasOwnProperty('href')) {
+    //     window.location.href = dataset.href
+    //   }
+    // }
+
+    // 3. 阻止默认事件，尽量不要在document，body上阻止默认事件
+    // box.ontouchstart = function (e) {
+    //   this.style.display = 'none';
+    //   e.preventDefault();
+    // }
+
+    // box.addEventListener('touchstart', function (ev) {
+    //   this.style.display = 'none';
+    //   ev.preventDefault();
+    // }, { passive: false })
+
+
+    // 三、移动端事件对象
+    // touches [] 当前屏幕中的手指列表
+    // targetTouches [] 当前元素身上的手指列表
+    // changedTouches [] 触发当前事件的手指列表
+    // 移动端拖拽
+    // const box = document.querySelector('#box')
+
+    // let oldX, oldY, startX, startY
+
+    // box.ontouchstart = function (e) {
+    //   let info = box.getBoundingClientRect()
+    //   startX = info.left
+    //   startY = info.top
+    //   let touch = e.changedTouches[0]
+    //   oldX = touch.pageX
+    //   oldY = touch.pageY
+    // }
+
+    // box.ontouchmove = function (e) {
+    //   let touch = e.changedTouches[0];
+    //   let nowX = touch.pageX - oldX + startX
+    //   let nowY = touch.pageY - oldY + startY
+    //   box.style.transform = `translate(${nowX}px, ${nowY}px)`
+    //   e.preventDefault() // 去除移动端弹性效果
+    // }
+
+
+    // 四、grid
+    // 1. fr 均分剩下空间
+    // 2. grid-template-columns 定义列
+    // 3. grid-template-rows 定义行
+    // 4. grid-template：rows / columns
+    // 5. justify-content align-content
+    // 6. grid-gap 间隙
+    // 7. grid-template-areas 合并单元格区域 grid-areas 指定单元格合并
+
+
+    // 五、监测
+    // 1. 横竖屏监测 orientation: landscape(横屏) / portrait
+    // @media all and(orientation: landscape) { .box {... } }
+    // 2. (重力)加速度监测
+    window.addEventListener('devicemotion', function (e) {
+      let motion = e.acceleration // 当前手机加速度
+      let gravity = e.accelerationIncludingGravity // 当前手机重力加速度
+      let { x, y, z } = motion
+      let { x: a, y: b, z: c } = gravity
+      // 图形变换...
+    })
+
+    // 加速度的取值  ios和安卓是相反的
+    // ios9之后，必须用https才能调用传感器  页面必须使用https协议，才能给你权限调用传感器
+    // ios12.2之后，用户必须在设备中打开"动作与方向的访问权限"
+    // ios13之后，ios要求使用"动作与方向的访问权限",必须用户授权
+    // ios14之后，动作与方向的访问权限必须用户手动触发，而且找不到修改入口
+  </script>
+
+</body>
+
+</html>

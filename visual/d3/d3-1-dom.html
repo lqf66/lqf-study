@@ -1,0 +1,158 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-20 09:37:30
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-20 10:47:40
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+    }
+
+    #main {
+      height: 100%;
+      background-color: antiquewhite;
+    }
+
+    h1 {
+      text-align: center
+    }
+
+    p {
+      text-align: center;
+      font-size: 24px;
+    }
+
+    .sky {
+      color: #00acec;
+    }
+
+    .ground {
+      color: green;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="main">
+    <h1 id="title">沁园春·长沙</h1>
+    <article id="cont">
+      <p>独立寒秋，湘江北去，橘子洲头。</p>
+      <p>看万山红遍，层林尽染；漫江碧透，百舸争流。</p>
+      <p>鹰击长空，鱼翔浅底，万类霜天竞自由。</p>
+      <p>怅寥廓，问苍茫大地，谁主沉浮？</p>
+      <p>携来百侣曾游。忆往昔峥嵘岁月稠。</p>
+      <p>恰同学少年，风华正茂；书生意气，挥斥方遒。</p>
+      <p>指点江山，激扬文字，粪土当年万户侯。</p>
+      <p>曾记否，到中流击水，浪遏飞舟？</p>
+    </article>
+    <input type="checkbox" checked>
+    <div class="text"></div>
+    <div id="cnd"></div>
+  </div>
+
+  <script src="https://lib.baomitu.com/d3/6.2.0/d3.js"></script>
+
+  <script>
+    // 圆
+    const main = d3.select('#main')
+    const svg = main.append('svg').attr('width', '100%').attr('height', '100%')
+    const circle = svg.append('circle').attr('cx', 200).attr('cy', 150).attr('r', 80)
+    circle.on('mouseover', () => {
+      circle.attr('fill', '#00acec')
+    })
+    circle.on('mouseout', () => {
+      circle.attr('fill', 'red')
+    })
+
+    d3.select('p').attr('class', 'sky')
+    // 过滤
+    d3.selectAll('p')
+      .filter(':nth-child(even)')
+      .attr('class', 'ground')
+    d3.selectAll('p')
+      .filter((ele, idx) => idx % 2)
+      .attr('class', 'ground')
+
+    const title = d3.select('#title')
+    title.style('color', 'purple')
+    title.attr('style', 'color: white')
+    title.classed('sky', true) // 参数二增删 class
+
+    d3.selectAll('p')
+      .style('color', (ele, idx) => {
+        return idx % 3 ? '#00acec' : '#000'
+      })
+
+    // 数据绑定
+    const data = [12, 14, 18, 24, 18, 18, 14, 12]
+    d3.selectAll('p')
+      .data(data)
+      .style('font-size', (ele) => {
+        return ele + 'px'
+      })
+
+    d3.selectAll('p').nodes()
+
+    // 属性设置用 property
+    d3.select('input')
+      .property('checked', false)
+
+    // 设置 text html
+    const p = '<p>曾记否，到中流击水，浪遏飞舟？</p>'
+    d3.select('.text')
+      .text(p)
+    d3.select('.text')
+      .html(p)
+
+    // append / insert
+    const cnd = d3.select('#cnd')
+    const p1 = cnd.append('p')
+      .text('独立寒秋，湘江北去，橘子洲头。--------')
+      .attr('id', 'p1')
+
+    cnd.insert('p', '#p1')
+      .text('作者：毛主席')
+
+    const arr = [
+      '作者：毛主席',
+      '独立寒秋，湘江北去，橘子洲头。',
+      '看万山红遍，层林尽染；漫江碧透，百舸争流。',
+      '鹰击长空，鱼翔浅底，万类霜天竞自由。',
+      '怅寥廓，问苍茫大地，谁主沉浮？',
+      '携来百侣曾游。忆往昔峥嵘岁月稠。',
+      '恰同学少年，风华正茂；书生意气，挥斥方遒。',
+      '指点江山，激扬文字，粪土当年万户侯。',
+      '曾记否，到中流击水，浪遏飞舟？'
+    ]
+
+    // 批量增加 删除之前元素
+    cnd.selectAll('p')
+      .data(arr)
+      .join('p')
+      .text(item => item)
+
+    // 批量增加 enter() 将数据和已有DOM元素做插值运算
+    cnd.selectAll('p')
+      .data(arr)
+      .enter()
+      .append('p')
+      .text(d => d)
+
+    // 删除元素
+    cnd.select('p:nth-child(2)').remove()
+  </script>
+</body>
+
+</html>

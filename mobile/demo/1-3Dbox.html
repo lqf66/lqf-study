@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #box {
+      margin: 200px auto;
+      padding: 50px;
+      width: 200px;
+      height: 200px;
+      border: 1px solid #000;
+      perspective: 600px;
+    }
+
+    #div {
+      width: 200px;
+      height: 200px;
+      transition: 6s;
+      transform-style: preserve-3d;
+      transform-origin: center center 100px;
+    }
+
+    #box:hover #div {
+      transform: rotateY(360deg)
+    }
+
+    #div div {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200px;
+      height: 200px;
+      font: 100px/200px '宋体';
+      text-align: center;
+      color: #fff;
+    }
+
+    #div div:nth-child(1) {
+      left: 0;
+      top: -200px;
+      background: red;
+      transform-origin: bottom;
+      transform: rotateX(-90deg)
+    }
+
+    #div div:nth-child(2) {
+      left: -200px;
+      top: 0;
+      background: blue;
+      transform-origin: right;
+      transform: rotateY(90deg)
+    }
+
+    #div div:nth-child(3) {
+      left: 0;
+      top: 0;
+      background: pink;
+    }
+
+    #div div:nth-child(4) {
+      left: 200px;
+      top: 0;
+      background: whitesmoke;
+      transform-origin: left;
+      transform: rotateY(-90deg)
+    }
+
+    #div div:nth-child(5) {
+      left: 0;
+      top: 200px;
+      background: yellow;
+      transform-origin: top;
+      transform: rotateX(90deg)
+    }
+
+    #div div:nth-child(6) {
+      left: 0;
+      top: 0;
+      background: green;
+      transform: translateZ(200px);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="box">
+    <div id="div">
+      <div>1</div>
+      <div>2</div>
+      <div>3</div>
+      <div>4</div>
+      <div>5</div>
+      <div>6</div>
+    </div>
+  </div>
+</body>
+
+</html>

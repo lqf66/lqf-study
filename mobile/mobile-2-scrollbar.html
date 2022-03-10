@@ -1,0 +1,317 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-10-11 16:11:57
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-10-14 15:36:47
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    #wrap {
+      position: absolute;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #list li {
+      font: 14px/30px '宋体'
+    }
+  </style>
+</head>
+
+<body>
+  <div id="wrap">
+    <ul id="list"></ul>
+  </div>
+  <script src="./js/mTween.js"></script>
+
+  <script>
+    class LqfEvent {
+      constructor() {
+        this.events = {}
+      }
+
+      on(event, fn) {
+        if (!this.events[event]) {
+          this.events[event] = []
+        }
+        this.events[event].push(fn)
+      }
+
+      off(event, fn) {
+        if (!this.events[event]) {
+          return
+        }
+        if (fn) {
+          this.events[event] = this.events[event].filters(item => item !== fn)
+        } else {
+          this.events[event].length = 0
+        }
+      }
+
+      once(event, fn) {
+        fn.once = true
+        this.on(event, fn)
+      }
+
+      dispatch(event) {
+        if (this.events[event]) {
+          this.events[event].forEach(fn => {
+            fn.call(this)
+            if (fn.once) {
+              this.off(event, fn)
+            }
+          })
+        }
+      }
+    }
+
+    class LqfScroll extends LqfEvent {
+      constructor(wrap, option) {
+        super()
+        this.wrap = wrap // 容器
+        this.option = option
+        this.list = this.wrap.children[0] // 子节点
+        this.startPoint = {} // 开始点
+        this.startY = 0 // 开始的y坐标
+        this.y = 0 // list所处的y坐标
+
+        this.minBarHeight = 20 // 滚动条最小值
+        this.maxY = this.list.offsetHeight - css(this.wrap, 'height') // 滚动条可滚动的最大y
+
+        this.lastY = 0 // 上一次滑动的位置
+        this.lastDisY = 0 // 最后一次的移动距离
+        this.lastTime = 0 // 上一次时间戳
+        this.lastDisTime = 0 // 最后一次的时间
+
+        this.n = .99 // 过界后的拉力系数
+        this.setN = this.setN()
+
+        this.isY = false
+        this.isFirst = true
+
+        this.option = {
+          scrollBar: false,
+          isScroll: true
+        }
+        this.option = { ...this.option, ...option } // 合并选项
+
+        // 设置滚动条的属性样式
+        if (this.option.scrollBar) {
+          this.scrollBar = document.createElement('div')
+          this.scrollBar.style.cssText = `
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: 6px;
+          height: 0;
+          background: rgba(0, 0, 0, .3);
+          border-radius: 3px;
+          transition: .5s opacity;
+          opacity: 0;
+        `
+          this.wrap.classList.add('scroll-bar')
+          this.wrap.appendChild(this.scrollBar)
+
+          // 设置滚动条高度以及比例
+          this.setBarHeight()
+          this.setBarMove()
+        }
+
+        css(this.list, 'translateY', 0)
+        css(this.list, "translateZ", 0)
+        this.start = this.start.bind(this)
+        this.move = this.move.bind(this)
+        this.end = this.end.bind(this)
+        this.wrap.addEventListener('touchstart', this.start)
+        this.wrap.addEventListener('touchmove', this.move)
+        this.wrap.addEventListener('touchend', this.end)
+      }
+
+      // 手指按下
+      start(e) {
+        this.dispatch("beforeScroll")
+        const touch = e.changedTouches[0]
+        mTween.stop(list)
+        this.maxY = this.list.offsetHeight - css(wrap, "height")
+        this.option.isScroll = this.maxY <= 0 ? false : true
+        if (!this.option.isScroll) {
+          return
+        }
+        this.startPoint = {
+          x: touch.pageX,
+          y: touch.pageY
+        }
+        this.startY = this.y
+        this.lastY = this.startPoint.y
+        this.lastDisY = 0
+        this.lastTime = new Date()
+        this.lastDisTime = 0
+        this.n = .99
+        this.isY = false
+        this.isFirst = true
+      }
+      move(e) {
+        if (!this.option.isScroll) {
+          return
+        }
+        const touch = e.changedTouches[0]
+        let nowTime = new Date()
+        const nowPoint = {
+          x: touch.pageX,
+          y: touch.pageY
+        }
+        const disPoint = {
+          x: nowPoint.x - this.startPoint.x,
+          y: nowPoint.y - this.startPoint.y
+        }
+        // 横竖屏监测
+        e.preventDefault()
+        if (this.isFirst) {
+          if (Math.abs(disPoint.y) - Math.abs(disPoint.x) > 5) {
+            this.isFirst = false
+            this.isY = true
+            if (this.scrollBar) {
+              this.setBarHeight()
+              this.setBarMove()
+              css(this.scrollBar, "opacity", 1)
+            }
+          } else if (Math.abs(disPoint.x) - Math.abs(disPoint.y) > 5) {
+            this.isFirst = false
+          }
+        }
+        if (!this.isY) {
+          return
+        }
+        this.y = this.startY + disPoint.y
+        // 超出边界产生拉力
+        if (this.y > 0) {
+          this.y *= this.n
+          this.setN()
+        } else if (this.y < -this.maxY) {
+          this.y = -this.maxY - (Math.abs(this.y) - this.maxY) * this.n
+          this.setN()
+        }
+        this.setScroll()
+        this.lastDisY = nowPoint.y - this.lastY
+        this.lastY = nowPoint.y
+        this.lastDisTime = nowTime - this.lastTime
+        this.lastTime = nowTime
+      }
+      end() {
+        if (!this.isY) {
+          return
+        }
+        let speed = this.lastDisY / this.lastDisTime
+        let nowTime = new Date()
+        if (isNaN(speed) || nowTime - this.lastTime > 100) {
+          speed = 0
+        }
+        let target = speed * 120
+        let _this = this
+        let fx = 'easeOutStrong'
+        target = Math.abs(target) < 30 ? 0 : target
+        target = target + this.y
+        // 回弹效果
+        if (target > 0) {
+          target = 0
+          fx = 'backOut'
+        } else if (target < -this.maxY) {
+          target = -this.maxY
+          fx = 'backOut'
+        }
+        mTween({
+          el: this.list,
+          attr: {
+            translateY: target
+          },
+          move() {
+            _this.y = css(_this.list, 'translateY')
+            _this.setScroll()
+          },
+          duration: {
+            multiple: 1.8
+          },
+          fx,
+          cb() {
+            _this.scrollEnd()
+          }
+        })
+      }
+      setScroll() {
+        css(this.list, 'translateY', this.y)
+        if (this.scrollBar) {
+          css(this.scrollBar, 'translateY', -this.y * this.barMoveScale)
+        }
+      }
+      scrollEnd() {
+        if (this.scrollBar) {
+          css(this.scrollBar, 'opacity', 0)
+        }
+      }
+      // 设置滚动条高度
+      setBarHeight() {
+        let wh = css(this.wrap, 'height')
+        let innerH = this.list.offsetHeight
+        let scale = wh / innerH
+        css(this.scrollBar, 'height', Math.max(this.minBarHeight, wh * scale))
+      }
+      // 设置滚动条占全文的比例
+      setBarMove() {
+        let maxBarMove = css(this.wrap, 'height') - css(this.scrollBar, "height")
+        this.barMoveScale = maxBarMove / this.maxY
+        this.barMoveScale = isNaN(this.barMoveScale) ? 1 : this.barMoveScale
+      }
+      setN() {
+        let timer = 0
+        return () => {
+          if (timer) {
+            return
+          }
+          timer = setTimeout(() => {
+            this.n *= 0.98
+            timer = 0
+          }, 100)
+        }
+      }
+    }
+
+
+    {
+      const wrap = document.querySelector('#wrap')
+      let scroll = new LqfScroll(wrap, { scrollBar: true })
+      let start = () => {
+        console.log("开始滑动")
+      }
+      scroll.on('beforeScroll', start)
+    }
+    {
+      const list = document.querySelector('#list')
+      list.innerHTML = [...(".").repeat(200)].map((item, index) => {
+        return `<li>这是第${index}条信息</li>`
+      }).join('')
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,158 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-25 17:55:49
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-27 15:24:19
+ * @Description: 图片，视频，像素，灰度，马赛克
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>绘制图像</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden
+    }
+
+    #canvas {
+      background: antiquewhite;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- <video id="vid" controls autoplay loop muted>
+    <source src="./images//ripples.mp4" type="video/mp4">
+  </video> -->
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.querySelector('#canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+
+    // const img = new Image();
+    // img.src = './images/dog.jpg';
+    // img.onload = function () {
+    //   // 获取图像尺寸
+    //   const { width, height } = img;
+
+    //   // 绘图+移动 drawImage(image, x, y)
+    //   ctx.drawImage(img, 100, 100);
+
+    //   // 绘图+移动+缩放 drawImage(image, x, y,width,height)
+    //   ctx.drawImage(img, 500, 100, width / 2, height / 2);
+
+    //   // 绘图 + 裁剪 + 移动 + 缩放 drawImage(image, x1, y1, w1, h1, x2, y2, w2, h2)
+    //   ctx.drawImage(
+    //     //图像源
+    //     img,
+    //     //相机视口
+    //     width / 4, height / 4, width / 2, height / 2,
+    //     //视图
+    //     100, 0, width / 2, height / 2,
+    //   )
+    // };
+
+    // // 视频
+    // const vid = document.querySelector('#vid');
+    // let interval = null
+    // vid.addEventListener('play', function () {
+    //   interval = setInterval(() => {
+    //     ctx.drawImage(vid, 0, 0)
+    //   })
+    // })
+    // vid.addEventListener('pause', function () {
+    //   clearInterval(interval)
+    // })
+
+    // // bomb.gif
+    // const len = 8
+    // const size = 256
+    // let fm = 0
+
+    // const img = new Image()
+    // img.src = "./images/bomb.jpg"
+    // img.onload = draw
+    // function draw() {
+    //   ctx.drawImage(
+    //     img,
+    //     fm * size, 0, size, size,
+    //     0, 0, size, size
+    //   )
+    //   setTimeout(() => {
+    //     fm++
+    //     if (fm === len) {
+    //       fm = 0
+    //     }
+    //     draw()
+    //   }, 100)
+    // }
+
+
+    // const [width, height] = [400, 200]
+
+    // // 创建ImageData对象 ImageData(Uint8ClampedArray, width, height)
+    // const imgData = new ImageData(width, height)
+    // imgData.data.forEach((ele, ind) => {
+    //   imgData.data[ind] = 200
+    // })
+    // console.log('imgData: ', imgData);
+    // ctx.putImageData(imgData, 0, 0)
+
+    // 创建上下文对象 ctx.createImageData(width, height)  ctx.createImageData(ImageData)
+    // const imgData = ctx.createImageData(width, height)
+    // imgData.data.forEach((ele, ind) => {
+    //   imgData.data[ind] = 200
+    // })
+    // ctx.putImageData(imgData, 0, 0)
+
+    // // 获取canvas 中的像素 getImageData(x, y, width, height) 
+    // const imgData2 = ctx.getImageData(1, 1, 2, 2)
+    // console.log('imgData2: ', imgData2);
+
+    // putImageData
+    const img = new Image()
+    img.src = './images/river.jpg'
+
+    img.onload = function () {
+      const { width, height } = img
+      ctx.drawImage(img, 0, 0)
+
+      const imgData = ctx.getImageData(0, 0, width, height)
+      const data = imgData.data
+
+      // 图像置灰
+      for (let i = 0; i < data.length; i += 4) {
+        const [r, g, b] = [data[i], data[i + 1], data[i + 2]]
+        const lm = 0.299 * r + 0.587 * g + 0.114 * b
+        data[i] = lm
+        data[i + 1] = lm
+        data[i + 2] = lm
+      }
+
+      // 马赛克效果
+      const size = 10
+      for (let y = 0; y < height; y += size) {
+        for (let x = 0; x < width; x += size) {
+          const i = (y * width + x) * 4
+          const [r, g, b] = [data[i], data[i + 1], data[i + 2]]
+          ctx.fillStyle = `RGB(${r}, ${g}, ${b})`
+          ctx.fillRect(x, y, size, size)
+        }
+      }
+
+      // 数据，图形位置 / 图形显示的起始点以及显示的宽高
+      ctx.putImageData(
+        imgData, width, 0,
+        width / 4, height / 4, width, height
+      )
+    }
+
+  </script>
+</body>
+
+</html>

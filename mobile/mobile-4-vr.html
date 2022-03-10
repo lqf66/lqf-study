@@ -1,0 +1,135 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-10-14 13:55:39
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-10-14 15:37:26
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    #view {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      /* perspective: 1200px; */
+    }
+
+    #wrap,
+    #tz,
+    #box3d {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform-style: preserve-3d;
+    }
+
+    #tz {
+      transform: translateZ(-200px);
+    }
+
+    #box3d img {
+      position: absolute;
+      left: -512px;
+      top: -512px;
+      width: 1024px;
+      height: 1024px;
+      backface-visibility: hidden;
+    }
+
+    #box3d img:nth-child(1) {
+      transform: rotateY(0deg) translateZ(-510px)
+    }
+
+    #box3d img:nth-child(2) {
+      transform: rotateY(-90deg) translateZ(-510px)
+    }
+
+    #box3d img:nth-child(3) {
+      transform: rotateY(-180deg) translateZ(-510px)
+    }
+
+    #box3d img:nth-child(4) {
+      transform: rotateY(-270deg) translateZ(-510px)
+    }
+
+    #box3d img:nth-child(5) {
+      transform: rotateX(-90deg) translateZ(-510px)
+    }
+
+    #box3d img:nth-child(6) {
+      transform: rotateX(90deg) translateZ(-510px)
+    }
+
+    /* 
+    @keyframes rotate {
+      0% {
+        transform: translateZ(512px) rotateY(0deg);
+      }
+
+      100% {
+        transform: translateZ(512px) rotateY(360deg);
+      }
+    }
+
+    #box3d {
+      animation: 10s rotate linear infinite;
+    } */
+  </style>
+</head>
+
+<body>
+  <div id="view">
+    <div id="wrap">
+      <div id="tz">
+        <div id="box3d">
+          <img src="img/neg-x.png" />
+          <img src="img/pos-z.png" />
+          <img src="img/pos-x.png" />
+          <img src="img/neg-z.png" />
+          <img src="img/pos-y.png" />
+          <img src="img/neg-y.png" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let view = document.querySelector('#view')
+    let wrap = document.querySelector('#wrap')
+    let tz = document.querySelector('#tz')
+    let box3d = document.querySelector("#box3d")
+    let deg = 52
+    setZ()
+    function setZ() {
+      let innerHeight = window.innerHeight
+      let nubTan = Math.tan(deg * Math.PI / 180)
+      let R = (innerHeight / 2) * nubTan
+      view.style.perspective = R + 'px'
+      wrap.style.transform = `translateZ(${R}px)`
+    }
+    window.addEventListener('resize', setZ)
+    window.addEventListener("orientationchange", setZ)
+    window.addEventListener("deviceorientation", (e) => {
+      let x = e.beta - 90 // 手机竖直是 90 
+      let y = (e.alpha + e.gamma) % 360
+      x = x > 60 ? 60 : x
+      x = x < -60 ? -60 : x
+      box3d.style.transform = `rotateX(${x}deg) rotateY(${y}deg)`
+    })
+  </script>
+</body>
+
+</html>

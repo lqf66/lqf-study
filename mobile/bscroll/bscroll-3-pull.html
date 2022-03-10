@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width,user-scalable=no" />
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style type="text/css">
+    body {
+      margin: 0;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .wrap {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .list {
+      position: relative;
+      width: 200vw;
+    }
+
+    .list li {
+      font: 16px/40px "宋体";
+      border-bottom: 1px solid #000;
+    }
+
+    .pullUp:after {
+      content: "正在加载更多内容";
+    }
+
+    .pullUpEnd:after {
+      content: "没有更多数据了";
+    }
+
+    .pullDown:before {
+      content: "正在刷新";
+      position: absolute;
+      top: -50px;
+    }
+
+    .pullDownEnd:before {
+      content: "刷新完毕";
+      position: absolute;
+      top: -50px;
+    }
+
+
+    /* 无限滚动样式 */
+    .wrap {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      background: #eee;
+      overflow: hidden;
+    }
+
+    .tombstone {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #000;
+    }
+
+    .inner {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #000;
+      background: red;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <ul class="list">
+    </ul>
+  </div>
+  <script src="../js/bscroll.js"></script>
+  <script>
+    {
+      let data = [...(".".repeat(200))].map((item, index) => `这是第${index}条数据`)
+      let wrap = document.querySelector(".wrap")
+      let list = document.querySelector(".list")
+      let page = 0
+      let len = 60
+      let render = () => {
+        let start = page * len
+        let end = (page + 1) * len
+        let nowData = data.filter((item, index) => index >= start && index < end)
+        return nowData.map(item => `<li>${item}</li>`).join("")
+      }
+      list.innerHTML += render()
+
+      let bscroll = new BScroll(wrap, {
+        scrollbar: {
+          fade: true, // 滚动条自动隐藏
+          interactive: false // 滚动条拖动
+        },
+        mouseWheel: {
+          speed: 20,
+          invert: false, // 滚轮滚动和时机滚动方向相同
+          easeTime: 400  // 缓冲时长
+        },
+        pullDownRefresh: {
+          threshold: 50,
+          stop: 50
+        },
+        pullUpLoad: {
+          threshold: 50
+        }
+      })
+      bscroll.on("beforeScrollStart", () => {
+        list.classList.remove("pullDownEnd")
+      })
+      bscroll.on("pullingDown", () => {
+        console.log("触发下拉刷新")
+        list.classList.add("pullDown")
+        setTimeout(() => {
+          list.classList.remove("pullDown")
+          list.classList.add("pullDownEnd")
+          list.innerHTML = `<li>这是刷新的新数据${Date.now()}</li>` + list.innerHTML
+          bscroll.finishPullDown()
+        }, 1000)
+      })
+      bscroll.on("pullingUp", () => {
+        console.log("上滑加载")
+        list.classList.add("pullUp")
+        page++
+        setTimeout(() => {
+          list.innerHTML += render()
+          list.classList.remove("pullUp")
+          bscroll.finishPullUp()
+          console.log((page + 1) * len, data.length)
+          if ((page + 1) * len >= data.length) {
+            bscroll.closePullUp()
+            list.classList.add("pullUpEnd")
+          }
+        }, 1000)
+      })
+
+      setTimeout(() => {
+        bscroll.closePullDown()
+      }, 2000)
+      setTimeout(() => {
+        bscroll.openPullDown({
+          threshold: 50,
+          stop: 50
+        })
+      }, 6000)
+    }
+
+    // 无限滚动
+    // {
+    //   let wrap = document.querySelector(".wrap")
+    //   let nub = 0
+    //   let infinityScroll = new BScroll(wrap, {
+    //     infinity: {
+    //       fetch(count) {
+    //         console.log(count)
+    //         // 获取大于 count 数量的数据，该函数是异步的，它需要返回一个 Promise。
+    //         // 成功获取数据后，你需要 resolve 数据数组（也可以 resolve 一个 Promise）。
+    //         // 数组的每一个元素是列表数据，在 render 方法执行的时候会传递这个数据渲染。
+    //         // 如果没有数据的时候，你可以 resolve(false)，来告诉无限滚动列表已经没有更多数据了。
+    //         nub++
+    //         return new Promise((resolve) => {
+    //           setTimeout(() => {
+    //             if (nub > 10) {
+    //               resolve(false)
+    //             } else {
+    //               let data = [...(".".repeat(count))]
+    //               resolve(data)
+    //             }
+
+    //           }, Math.random() * 1000 + 1000)
+    //         })
+    //       },
+    //       render(item) {
+    //         // 渲染每一个元素节点，item 是数据
+    //         // 该函数需要返回渲染后的 DOM 节点。
+    //         let div = document.createElement("div")
+    //         div.className = "inner"
+    //         return div
+    //       },
+    //       createTombstone() {
+    //         // 返回一个墓碑 DOM 节点。
+    //         let div = document.createElement("div")
+    //         div.className = "tombstone"
+    //         return div
+    //       }
+    //     }
+    //   })
+    // }
+  </script>
+</body>
+
+</html>

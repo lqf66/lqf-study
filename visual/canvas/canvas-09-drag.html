@@ -1,0 +1,224 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-29 16:52:08
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-30 14:29:35
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>鼠标在canvas中的位置</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden
+    }
+
+    #canvas {
+      background: antiquewhite;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas" width="600" height="400"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    const ctx = canvas.getContext('2d');
+
+    // 矩形对象
+    class Rectangle {
+      constructor(width = 0, height = 0, color = '#000') {
+        this.width = width;
+        this.height = height;
+        this.color = color;
+        this.x = 0;
+        this.y = 0;
+      }
+      draw(ctx) {
+        const { x, y, width, height, color } = this;
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, width, height);
+        ctx.restore();
+      }
+    }
+
+    // 简单圆形
+    class Ball {
+      constructor(r = 0, color = '#000') {
+        this.r = r;
+        this.color = color;
+        this.x = 0;
+        this.y = 0;
+      }
+      draw(ctx) {
+        const { x, y, r, color } = this;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // 扇形
+    class Sector {
+      constructor(r = 0, startAngle = 0, endAngle = Math.PI * 2, color = '#000') {
+        this.r = r;
+        this.startAngle = startAngle;
+        this.endAngle = endAngle;
+        this.color = color;
+        this.x = 0;
+        this.y = 0;
+      }
+      draw(ctx) {
+        const { x, y, r, startAngle, endAngle, color } = this;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.arc(x, y, r, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // 实例化矩形对象
+    // const instance = new Rectangle(200, 100);
+    // instance.x = 100;
+    // instance.y = 100;
+
+    const instance = new Ball(30);
+    instance.x = canvas.width / 2;
+    instance.y = canvas.height - instance.r;
+
+    // 扇形弧度设置则：起始弧度和结束弧度都大于0
+    // const instance = new Sector(200, 0, Math.PI / 3);
+    // instance.x = 200;
+    // instance.y = 200;
+
+    // 鼠标位减图形位
+    let subPos = null;
+    // 图形是否被选择
+    let selected = false;
+
+    //点击事件
+    canvas.addEventListener('mousedown', mousedownFn);
+    //移动
+    canvas.addEventListener('mousemove', mousemoveFn);
+    //鼠标抬起
+    canvas.addEventListener('mouseup', mouseupFn);
+
+    function mousedownFn(event) {
+      const mousePos = getPos(event)
+      subPos = {
+        x: mousePos.x - instance.x,
+        y: mousePos.y - instance.y
+      }
+      // selected = containPoint(instance, mousePos)
+      // 判断该点是否处于绘制图形中
+      selected = ctx.isPointInPath(mousePos.x, mousePos.y)
+
+      // 判断该点是否处于描边上
+      // isPointInStroke(x, y)
+    }
+
+    function mousemoveFn(event) {
+      const mousePos = getPos(event)
+      if (selected) {
+        instance.x = mousePos.x - subPos.x;
+        instance.y = mousePos.y - subPos.y;
+        // render();
+      }
+    }
+
+    function mouseupFn() {
+      if (selected) {
+        selected = false
+        gravity = 0.01
+        time = new Date()
+      }
+    }
+    // 判断点是否在矩形中
+    // function containPoint(obj, mousePos) {
+    //   const { x, y, width, height } = obj;
+    //   // 解构鼠标位置
+    //   const { x: mx, y: my } = mousePos;
+    //   // 计算鼠标和图形上、下、左、右边界的关系
+    //   const l = mx > x;
+    //   const r = mx < x + width;
+    //   const t = my > y;
+    //   const b = my < y + height;
+    //   return l && r && t && b;
+    // }
+
+    // 判断点是否在圆形中
+    // function containPoint({ r }) {
+    //   const { x, y } = subPos;
+    //   // 获取鼠标到圆心的距离 len
+    //   const len = Math.sqrt(x * x + y * y);
+    //   // 判断鼠标到圆心的距离是否小于r
+    //   return len < r;
+    // }
+
+    // // 判断点是否在扇形中
+    // function containPoint(obj) {
+    //   const { r, startAngle, endAngle } = obj;
+    //   // 获取鼠标到圆心的距离
+    //   const { x, y } = subPos;
+    //   const len = Math.sqrt(x * x + y * y);
+    //   // 判断鼠标到圆心的距离是否小于半径
+    //   const b1 = len < r;
+    //   // 获取鼠标位减图形位的方向 dir
+    //   const dir = Math.atan2(y, x);
+    //   // 判断鼠标向量的方向是否在扇形的夹角之间
+    //   const b2 = dir > startAngle && dir < endAngle;
+    //   return b1 && b2;
+    // }
+
+    // 获取鼠标在canvas中的位置
+    function getPos(event) {
+      const { clientX, clientY } = event;
+      const { left, top } = canvas.getBoundingClientRect();
+      const [x, y] = [clientX - left, clientY - top];
+      return { x, y };
+    }
+
+    let time = null;
+    let gravity = 0;
+    let bounce = -0.8;
+    let vy = 0;
+
+    function animate() {
+      const now = new Date()
+      const diff = now - time
+      time = now
+
+      vy += gravity
+      instance.y += vy * diff
+
+      if (instance.y >= canvas.height - instance.r) {
+        instance.y = canvas.height - instance.r
+        vy *= bounce
+      }
+    }
+
+    !(function render() {
+      !selected && animate()
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      instance.draw(ctx)
+      requestAnimationFrame(render)
+    })()
+
+  </script>
+</body>
+
+</html>

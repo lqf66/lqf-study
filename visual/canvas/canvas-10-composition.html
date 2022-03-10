@@ -1,0 +1,175 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-28 09:59:12
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-30 10:38:04
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>合成</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden
+    }
+
+    #canvas {
+      /* background: antiquewhite; */
+      background-image: url("./images/ggl-back.png");
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    //canvas充满窗口
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    //画笔
+    const ctx = canvas.getContext('2d');
+
+    // // 透明度合成 globalAlpha，取值范围[0,1]
+    // ctx.save();
+    // ctx.globalAlpha = 0.5;
+    // ctx.fillRect(50, 50, 200, 100);
+    // ctx.fillRect(150, 100, 200, 100);
+    // ctx.restore();
+
+    // ctx.fillRect(200, 150, 200, 100);
+
+    // // 路径裁剪的步骤：1.定义路径 2.ctx.clip() 3.绘图
+    // ctx.save();
+    // ctx.beginPath();
+    // ctx.arc(300, 300, 200, 0, Math.PI * 2);
+    // ctx.stroke();
+
+    // ctx.clip();
+    // ctx.fillRect(50, 50, 600, 200);
+    // ctx.fillStyle = '#00acec';
+    // ctx.fillRect(300, 50, 600, 600);
+    // ctx.restore();
+
+    // ctx.fillRect(50, 400, 600, 600);
+
+    // 全局合成
+    // source - atop
+    // source -in
+    // source - out
+    // source - over 默认
+    // destination - atop
+    // destination -in
+    // destination - out
+    // destination - over
+    // lighter
+    // copy
+    // xor
+
+
+    // 获取叠加区域透明度
+    /**
+     * 已知条件
+     * x 全局透明度
+     * len 完全不透明的图形叠的加次数
+     */
+    const x = 0.5;
+    const len = 3;
+
+    let imgDt = null;
+    // 设置全局透明度
+    ctx.globalAlpha = x;
+
+    // 手动绘图获取图形叠加后的透明度
+    for (let n = 0; n < len + 1; n++) {
+      ctx.fillRect(200, 200, 400, 200);
+      imgDt = ctx.getImageData(0, 0, 1, 1);
+      if (n === len) {
+        console.log('手动绘图获取透明度', imgDt.data[3])
+      }
+    }
+    // 算法获取图形叠加后的透明度
+    console.log('递归算法获取透明度', getAlpha(x, len))
+    function getAlpha(x = 1, len = 0) {
+      return getY();
+      function getY(y = 0, n = 0) {
+        const float = 255 * Math.pow(x, n + 1);
+        const [uint] = new Uint8ClampedArray([y + float]);
+        if (n === len) {
+          return uint;
+        } else {
+          return getY(uint, n + 1);
+        }
+      }
+    }
+
+    // 刮刮乐
+    const [width, height] = [395, 188];
+    canvas.width = 385;
+    canvas.height = 188;
+
+    const img = new Image()
+    img.src = './images/ggl-mask.png'
+    img.onload = function () {
+      ctx.drawImage(img, 0, 0)
+    }
+
+    class Line {
+      constructor(ctx) {
+        this.ctx = ctx
+        this.drawing = false
+      }
+      moveTo(x, y) {
+        const { ctx } = this
+        this.drawing = true
+        ctx.save()
+        ctx.globalCompositeOperation = 'destination-out'
+        ctx.lineWidth = 20
+        ctx.moveTo(x, y)
+      }
+      lineTo(x, y) {
+        const { ctx } = this
+        ctx.lineTo(x, y)
+        ctx.stroke()
+      }
+      restore() {
+        this.ctx.restore()
+        this.drawing = false
+      }
+    }
+
+    const line = new Line(ctx)
+    canvas.addEventListener('mousedown', (e) => {
+      if (e.buttons === 1) {
+        const { x, y } = getMousePos(e)
+        line.moveTo(x, y)
+      }
+    })
+    canvas.addEventListener('mousemove', (e) => {
+      if (e.buttons === 1 && line.drawing) {
+        const { x, y } = getMousePos(e)
+        line.lineTo(x, y)
+      }
+    })
+    canvas.addEventListener('mouseup', (e) => {
+      if (e.buttons === 0) {
+        line.restore()
+      }
+    })
+    function getMousePos(event) {
+      const { clientX, clientY } = event
+      const { top, left } = canvas.getBoundingClientRect()
+      const x = clientX - left
+      const y = clientY - top
+      return { x, y }
+    }
+
+
+  </script>
+</body>
+
+</html>

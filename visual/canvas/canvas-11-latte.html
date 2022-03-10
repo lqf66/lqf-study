@@ -1,0 +1,237 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-29 20:25:06
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-30 10:29:39
+ * @Description: 我添加了修改
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拿铁咖啡</title>
+  <style>
+    * {
+      user-select: none;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #wrapper {
+      position: relative;
+      height: 100%;
+      background-image: url('./images/wood.jpg');
+      text-align: center;
+    }
+
+    #wrapper * {
+      opacity: 0;
+    }
+
+    #beans {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 80%;
+    }
+
+    #rose {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 70%;
+    }
+
+    /* 鱼，MP4 格式，在pc 宽屏中显示，受遮罩影响 */
+    #fishVid {
+      display: none;
+      -webkit-mask-image: url("./images/milk.png");
+      mask-image: url("./images/milk.png");
+      -webkit-mask-size: 100%;
+      mask-size: 100%;
+    }
+
+    .cup-ele {
+      position: absolute;
+      width: 90%;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #latte {
+      display: none;
+    }
+
+    #canvas {
+      cursor: pointer;
+    }
+
+    /*依次过度的动画*/
+    .trans1 {
+      transition: opacity 1500ms;
+    }
+
+    .trans2 {
+      transition: opacity 1500ms 400ms;
+    }
+
+    .trans3 {
+      transition: opacity 1000ms 700ms;
+    }
+
+    .trans4 {
+      transition: opacity 500ms 1300ms;
+    }
+
+    /*自适应宽度*/
+    @media (min-width: 768px) {
+      #beans {
+        width: 40%;
+      }
+
+      #rose {
+        width: 40%;
+      }
+
+      #fishVid {
+        display: block;
+      }
+
+      #fishImg {
+        display: none;
+      }
+
+      .cup-ele {
+        top: 45%;
+        width: 50%;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      #beans {
+        width: 30%;
+      }
+
+      .cup-ele {
+        top: 45%;
+        width: 40%;
+      }
+
+      #rose {
+        width: 30%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="wrapper">
+    <img src="./images/beans.png" id="beans" class="trans1" alt="" draggable="false">
+    <img src="./images/rose.png" id="rose" class="trans2" alt="" draggable="false">
+    <video src="https://yxyy-lesson.oss-cn-beijing.aliyuncs.com/fish.mp4" id="fishVid" class="cup-ele trans4" loop muted
+      autoplay></video>
+    <img src="./images/cup.png" id="cup" class="cup-ele trans3" alt="" draggable="false">
+    <canvas id="canvas" class="cup-ele trans3"></canvas>
+  </div>
+  <!--图像源-->
+  <div id="originImg">
+    <!--拿铁的图像源-->
+    <img src="./images/milk.png" id="latte" class="cup-ele" alt="">
+  </div>
+
+  <script>
+    class Line {
+      constructor(ctx) {
+        this.ctx = ctx
+        this.drawing = false
+      }
+      moveTo(x, y) {
+        const { ctx } = this
+        this.drawing = true
+        ctx.save()
+        ctx.lineWidth = 120
+        ctx.lineJoin = 'round';
+        ctx.globalCompositeOperation = 'destination-out'
+        ctx.moveTo(x, y)
+      }
+      lineTo(x, y) {
+        const { ctx } = this
+        ctx.lineTo(x, y)
+        ctx.stroke()
+      }
+      restore() {
+        this.ctx.restore()
+        this.drawing = false
+      }
+    }
+
+    window.addEventListener('load', () => {
+      loadFn()
+    })
+
+    function loadFn() {
+      const { childNodes } = document.querySelector('#wrapper')
+      Array.from(childNodes).forEach(node => {
+        node.style && (node.style.opacity = '1')
+      })
+
+      // 绘制拿铁
+      const canvas = document.querySelector('#canvas')
+      const latImg = document.querySelector('#latte')
+      const { width, height } = latImg
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(latImg, 0, 0)
+
+      // 擦除拿铁
+      const line = new Line(ctx)
+      canvas.addEventListener('mousedown', (e) => {
+        if (e.buttons === 1) {
+          const { x, y } = getMousePos(e)
+          line.moveTo(x, y)
+        }
+      })
+      canvas.addEventListener('mousemove', (e) => {
+        if (e.buttons === 1 && line.drawing) {
+          const { x, y } = getMousePos(e)
+          line.lineTo(x, y)
+        }
+      })
+      canvas.addEventListener('mouseup', (e) => {
+        if (e.buttons === 0) {
+          line.restore()
+        }
+      })
+    }
+
+    function getMousePos(event) {
+      const { clientX, clientY } = event
+      const { top, left } = canvas.getBoundingClientRect()
+      const cssX = clientX - left
+      const cssY = clientY - top
+      // 如果在css中设置宽高，需要进行百分比转换
+      // 鼠标在canvas 中的百分位 = css位置/css尺寸
+      const [percentX, percentY] = [cssX / clientWidth, cssY / clientHeight];
+      // 鼠标在canvas 中的像素位 = 画布尺寸*位置的百分比
+      const [x, y] = [width * percentX, height * percentY];
+      return { x, y }
+    }
+
+  </script>
+</body>
+
+</html>

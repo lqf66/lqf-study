@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width,user-scalable=no" />
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style type="text/css">
+    body {
+      margin: 0;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .wrap {
+      width: 100vw;
+      overflow: hidden;
+      position: relative;
+      left: 0;
+      bottom: 20px;
+    }
+
+    .list {
+      width: 600vw;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .list li {
+      float: left;
+      width: 100vw;
+      height: 140px;
+      box-sizing: border-box;
+      font: 80px/138px "宋体";
+      text-align: center;
+      border: 1px solid #000;
+      background: #f1f1f1;
+    }
+
+    .nav {
+      position: absolute;
+      left: 0;
+      bottom: 20px;
+      width: 100vw;
+      height: 10px;
+      text-align: center;
+    }
+
+    .nav a {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #fff;
+
+    }
+
+    .nav a.active {
+      background: #f60;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <ul class="list">
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+      <li>4</li>
+    </ul>
+    <nav class="nav">
+      <a class="active"></a>
+      <a></a>
+      <a></a>
+      <a></a>
+    </nav>
+    <script src="../js/bscroll.js"></script>
+    <script>
+      {
+        let wrap = document.querySelector(".wrap")
+        let navs = document.querySelectorAll(".nav a")
+        let timer = 0
+        let snap = new BScroll(wrap, {
+          scrollX: true,
+          scrollY: false,
+          momentum: false,
+          tap: true,
+          snap: {
+            loop: true,
+            threshold: 0.1
+          },
+          eventPassthrough: 'vertical' // 保留原生的滚动
+        })
+
+        snap.on("scrollEnd", () => {
+          console.log(snap.getCurrentPage()) // 获取当前页码方法
+          navs.forEach(item => {
+            item.classList.remove("active")
+          })
+          navs[snap.getCurrentPage().pageX].classList.add("active")
+        })
+
+        snap.on("beforeScrollStart", () => {
+          clearInterval(timer)
+        })
+        snap.on("touchEnd", () => {
+          timer = setInterval(() => {
+            snap.next() // 跳转至下一页码
+          }, 3000)
+        })
+        timer = setInterval(() => {
+          snap.next()
+        }, 3000)
+
+        navs.forEach((item, index) => {
+          item.addEventListener("tap", () => {
+            snap.goToPage(index, 0) // 跳转至该页码
+            navs.forEach(item => {
+              item.classList.remove("active")
+            })
+            navs[index].classList.add("active")
+          })
+        })
+      }
+    </script>
+</body>
+
+</html>

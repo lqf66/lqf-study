@@ -1,0 +1,147 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-30 09:57:58
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-30 10:16:59
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新年好</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #vid {
+      position: absolute;
+      visibility: hidden;
+    }
+
+    #imgL {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: url("./images/imgL.png");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: left;
+    }
+
+    #imgR {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: url("./images/imgR.png");
+      background-size: cover;
+      background-position: right;
+    }
+
+    #canvas {
+      background: url(./images/back\ copy.jpg);
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
+</head>
+
+<body>
+  <video id="vid" src="./images/firework.mp4" autoplay loop muted></video>
+  <div id="imgL"></div>
+  <div id="imgR"></div>
+  <canvas id="canvas"></canvas>
+  <script src="./js/Tween.js"></script>
+  <script>
+    const [width, height] = [window.innerWidth, window.innerHeight]
+    const canvas = document.querySelector('#canvas')
+    const vid = document.querySelector('#vid')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+
+    const img = new Image()
+    img.src = './images/cloud.png'
+    const clouds = [
+      { pos: { x: width, y: height - 350 }, scale: 0.6 },
+      { pos: { x: width * 0.3, y: height - 200 }, scale: 0.6 },
+      { pos: { x: width + 200, y: height - 330 }, scale: 0.7 },
+      { pos: { x: width - 200, y: height - 220 }, scale: 0.8 },
+      { pos: { x: width - 400, y: height - 320 }, scale: 1 },
+      { pos: { x: width * 0.1, y: height - 310 }, scale: 1 },
+    ];
+    const vx = 0.02
+    let time = new Date()
+
+    function draw() {
+      ctx.save()
+
+      const [tx, ty] = [(width - 920) / 2, (height - 250) / 4];
+
+      // 文字样式
+      ctx.font = 'bold 270px Arial';
+      ctx.textBaseline = 'top';
+
+      ctx.save()
+      ctx.translate(tx, ty)
+      ctx.fillText('拜年啦!', 0, 0)
+      ctx.globalCompositeOperation = 'source-in'
+      ctx.drawImage(vid, 0, -180, 920, 540);
+      ctx.restore()
+
+      /*-----描边文字------*/
+      ctx.save();
+      ctx.translate(tx, ty);
+      // 投影
+      ctx.shadowColor = 'rgba(0,0,0,0.6)';
+      ctx.shadowOffsetY = 2;
+      ctx.shadowBlur = 4;
+      // 渐变色
+      const pt = ctx.createLinearGradient(0, 250, 0, 0);
+      pt.addColorStop(0, '#f7d495');
+      pt.addColorStop(0.53, '#cc904f');
+      pt.addColorStop(0.56, '#fbe1b9');
+      pt.addColorStop(0.64, '#f5d192');
+      pt.addColorStop(1, '#ce9555');
+      // 绘制描边文字
+      ctx.strokeStyle = pt;
+      ctx.lineWidth = 6;
+      ctx.strokeText('拜年啦！', 0, 0);
+      ctx.restore();
+
+      // 白云
+      clouds.forEach(cloud => {
+        const { pos, scale } = cloud
+        ctx.drawImage(img, pos.x, pos.y, img.width * scale, img.height * scale)
+        if (pos.x < -400) {
+          pos.x = width
+        }
+      })
+      ctx.restore()
+    }
+
+    function render() {
+      const now = new Date()
+      const diff = now - time
+      time = now
+      const dist = diff * vx
+      clouds.forEach(cloud => {
+        cloud.pos.x -= dist * cloud.scale
+      })
+      ctx.clearRect(0, 0, width, height)
+      draw()
+      requestAnimationFrame(render)
+    }
+
+    vid.addEventListener('play', () => {
+      render()
+    })
+  </script>
+</body>
+
+</html>

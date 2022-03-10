@@ -1,0 +1,76 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-25 16:54:52
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-27 15:24:04
+ * @Description: 文字
+-->
+<!DOCTYPE html>
+<!--<html lang="en" dir="rtl">-->
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>canvas-text</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden
+    }
+
+    #canvas {
+      background: antiquewhite;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas = document.querySelector('#canvas')
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+
+    const text = 'canvas'
+
+    // ctx.lineWidth = 3
+    // ctx.fillStyle = 'red'
+    // ctx.strokeStyle = 'green'
+    // ctx.font = 'bold 100px arial'
+    // ctx.textAlign = 'start';    // end left right center
+    // ctx.textBaseline = 'top';   // bottom center hanging ideographic alphabatic 默认
+    // ctx.fillText(text, 100, 100)
+    // ctx.strokeText(text, 100, 100)
+
+    // // 获取宽度
+    // const measure = ctx.measureText(text)
+    // console.log('measure: ', measure);
+    // ctx.strokeText(text, 100, 200, measure.width / 2);
+
+
+    // 艺术字体
+    const [x, y] = [50, 200]
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'
+    ctx.shadowOffsetY = 2
+    ctx.shadowBlur = 4
+
+    ctx.font = 'bold 200px arial'
+    ctx.fillStyle = '#a76921'
+    ctx.fillText(text, x, y)
+
+    ctx.strokeStyle = '#f0d5ac'
+    ctx.lineWidth = 8
+    ctx.strokeText(text, x, y)
+
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1
+    ctx.setLineDash([5, 3])
+    ctx.strokeText(text, x, y)
+  </script>
+</body>
+
+</html>

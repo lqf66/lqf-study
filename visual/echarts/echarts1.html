@@ -1,0 +1,635 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-21 15:41:27
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-23 22:36:20
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #main {
+      width: 700px;
+      height: 500px;
+    }
+
+    #pie {
+      width: 600px;
+      height: 400px;
+    }
+
+    #scatter {
+      width: 600px;
+      height: 400px;
+    }
+
+    #candlestick {
+      width: 600px;
+      height: 400px;
+    }
+
+    #radar {
+      width: 600px;
+      height: 400px;
+    }
+
+    #gauge {
+      width: 600px;
+      height: 400px;
+    }
+
+    #map {
+      width: 600px;
+      height: 400px;
+    }
+
+    #geo {
+      width: 600px;
+      height: 400px;
+    }
+
+    #richText {
+      width: 600px;
+      height: 400px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="main"></div>
+  <div id="pie"></div>
+  <div id="scatter"></div>
+  <div id="candlestick"></div>
+  <div id="radar"></div>
+  <div id="gauge"></div>
+  <div id="map"></div>
+  <div id="geo"></div>
+  <div id="richText"></div>
+
+  <script src="https://lib.baomitu.com/echarts/4.7.0/echarts.min.js"></script>
+  <script>
+    const main = document.querySelector('#main')
+    const pie = document.querySelector('#pie')
+    const scatter = document.querySelector('#scatter')
+    const candlestick = document.querySelector('#candlestick')
+    const radar = document.querySelector('#radar')
+    const gauge = document.querySelector('#gauge')
+    const map = document.querySelector('#map')
+    const geo = document.querySelector('#geo')
+    const richText = document.querySelector('#richText')
+
+    const chart = echarts.init(main)
+    const chartPie = echarts.init(pie)
+    const chartScatter = echarts.init(scatter)
+    const chartCandlestick = echarts.init(candlestick)
+    const chartRadar = echarts.init(radar)
+    const chartGauge = echarts.init(gauge)
+    const chartMap = echarts.init(map)
+    const chartGeo = echarts.init(geo)
+    const chartRichText = echarts.init(richText)
+
+
+
+    // 折线图/柱状图
+    const option = {
+
+      // 标题
+      title: {
+        text: '大前端',
+        left: 'center',
+        // left: '50%',
+        // left: 250,
+        subtext: '大前端学习人数',
+        textStyle: {
+          fontSize: 32,
+          color: '#00acec'
+        },
+        subtextStyle: {
+          fontSize: 18,
+          color: '#f00'
+        },
+        show: true
+      },
+
+      // 提示框
+      tooltip: {
+        trigger: 'item', // 图形触发,设置tooltip后默认值
+        // trigger: 'axis', // 坐标轴触发,适用于多系列
+        // trigger: 'none'
+      },
+
+      // 绘图区
+      grid: {
+        top: 90
+      },
+
+      // 图例 与series-name对应
+      legend: {
+        left: 'left'
+      },
+
+      // 工具栏
+      toolbox: {
+        feature: {
+          saveAsImage: {
+            type: 'jpg' // 默认 png
+          },
+          dataView: {
+            // 数据视图工具
+          },
+          restore: {
+            // 还原
+          },
+          dataZoom: {
+            // 数据区域缩放
+          },
+          magicType: {
+            // 动态类型切换
+            type: ['line', 'bar', 'stack']
+          }
+        }
+      },
+
+      // x轴
+      xAxis: {
+        name: '前端语言',
+        data: ['html', 'css', 'js', 'vue'],
+        boundaryGap: 0, // 边界留白,折线图适用
+      },
+      // y轴
+      yAxis: {
+        name: '人数',
+        splitNumber: 10, // 分割段数
+        // interval: 10, // 强制设置分割间隔
+        // minInterval: 10,
+        maxInterval: 4
+      },
+      // 数组时为多坐标轴
+      // yAxis: [
+      //   { max: 50 },
+      //   {},
+      // ],
+      series: [
+        {
+          name: '学习人数', // 用于tooltip,legend筛选,数据更新
+          type: 'bar',
+          data: [12, 20, 40, 50],
+          markPoint: { // 标记点
+            data: [ // 标记的数据数组
+              { type: 'min' },
+              { type: 'max' },
+              { type: 'average' },
+              {
+                value: 'Lqf',
+                coord: [0, 45]
+              }
+            ]
+          }
+        },
+        {
+          name: '就业人数',
+          type: 'line',
+          data: [30, 20, 40, 60],
+          markLine: { // 标记线
+            data: [
+              { type: 'average' },
+              { type: 'max' },
+              { type: 'min' },
+              [
+                { coord: [0, 0] },
+                { coord: [2, 50] }
+              ]
+            ]
+          },
+          // 折线图属性
+          smooth: true, // 数据差异过大可能有问题
+          itemStyle: { // 项目样式
+            color: '#00acec'
+          },
+          areaStyle: {
+            color: '#00acec',
+            opacity: 0.3
+          },
+          symbolSize: 30, // 标记点大小
+          // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
+          symbol: 'arrow'
+          // symbol: 'image://url' // 图片 symbol: 'image://./image/bg.png'
+          // symbol: 'path://svg'
+        }
+      ]
+    }
+
+    // 饼图
+    const optionPie = {
+      // 视觉映射
+      visualMap: {
+        max: 100,
+        min: 0,
+        inRange: {
+          colorLightness: [0.2, 0.8], // 亮度
+        }
+      },
+      tooltip: {},
+      series: {
+        type: 'pie',
+        data: [
+          { name: 'html', value: 30 },
+          { name: 'css', value: 20 },
+          { name: 'js', value: 40 },
+          { name: 'vue', value: 60 },
+        ],
+        roseType: 'radius',
+        // radius: '50%',
+        radius: ['40%', '70%'], // 内外半径,百分比根据宽高较小值
+        itemStyle: {
+          color: '#00acec'
+        },
+        emphasis: {
+          itemStyle: {
+            shadowColor: 'rgba(0,0,0,0.5)',
+            shadowOffsetY: 10,
+            shadowBlur: 10
+          }
+        }
+      }
+    }
+
+    // 散点图 三种缩放形式 视觉映射 visualMap
+    const optionScatter = {
+      toolbox: {
+        feature: {
+          dataZoom: {}
+        }
+      },
+      xAxis: {
+
+      },
+      yAxis: {
+
+      },
+
+      /*
+        * visualMap 视觉映射 {}
+        *   type 映射方式
+        *       continuous 连续型
+        *       piecewise 分段型
+        *   min 映射区间的起始位置，如0
+        *   max 映射区间的接收位置，如90
+        *   calculable 是否显示拖拽用的手柄，只适用于连续型
+        *   range [] 显示此范围内的项目，百分比类型，只适用于连续型,如[0,100]
+        *   dimension 基于哪个维度的数据进行视觉映射
+        *   inRange 自定义取色范围
+        *       color[] 颜色映射
+        *       symbolSize[] 大小映射
+        *
+        * */
+      visualMap: {
+        type: 'continuous',
+        dimension: 2,
+        min: 0,
+        max: 100,
+        calculable: true,
+        // range:[50,100],
+        inRange: {
+          symbolSize: [3, 80],
+          color: ['#00acec', 'yellow', 'orange']
+        }
+      },
+      // visualMap: {
+      //   type: 'piecewise',
+      //   dimension: 2,
+      //   min: 0,
+      //   max: 100,
+      //   bottom: 40,
+      //   inRange: {
+      //     symbolSize: [3, 80],
+      //     // color:['#00acec','yellow','orange'],
+      //     colorSaturation: [0, 1],
+      //     colorHue: [0, 360]
+      //   }
+      // },
+
+
+      /*
+      * dataZoom 区域缩放 [{},{}]
+      *   type 缩放方式
+      *       inside 内置缩放，通过鼠标的平移缩放实现
+      *       slider 滑动条缩放
+      *   xAxisIndex 缩放作用于哪个x轴
+      *   yAxisIndex 缩放作用于哪个y轴
+      *   start 起始位，百分百 [0,100]
+      *   end 结束位，百分百 [0,100]
+      * */
+      dataZoom: [
+        {
+          type: 'inside',
+          // start:50,
+          // end:60
+        },
+        {
+          type: 'slider',
+          xAxisIndex: 0
+        },
+        {
+          type: 'slider',
+          yAxisIndex: 0
+        },
+      ],
+      series: {
+        type: 'scatter',
+        data: [
+          [2, 1, 5],
+          [4, 2, 10],
+          [6, 3, 15],
+          [8, 4, 20],
+          [10, 5, 25],
+          [12, 6, 30],
+          [14, 7, 35],
+          [16, 8, 40],
+          [18, 9, 45],
+        ],
+        // symbolSize: 30
+        symbolSize: (data) => {
+          return data[2]
+        }
+      }
+    }
+
+    // k线图
+    const optionCandlestick = {
+      xAxis: {
+        data: ['周一', '周二', '周三', '周四']
+      },
+      yAxis: {},
+      series: {
+        type: 'candlestick',
+        data: [
+          [20, 30, 10, 40],  // 开盘,收盘,最低,最高
+          [30, 20, 10, 40],
+          [30, 25, 70, 10],
+        ]
+      }
+    }
+
+    // 雷达图
+    const optionRadar = {
+      title: {
+        text: '英雄实力对比'
+      },
+      legend: {
+
+      },
+      tooltip: {},
+      // 雷达坐标系组件
+      radar: {
+        // 雷达图的指示器集合
+        indicator: [
+          // 指示器名称 数据区间 标签颜色
+          { name: '生命', min: 0, max: 100, color: 'green' },
+          { name: '攻击', min: 0, max: 100, color: 'red' },
+          { name: '暴击', min: 0, max: 100 },
+          { name: '防御', min: 0, max: 100 },
+          { name: '速度', min: 0, max: 100 },
+        ]
+      },
+      series: {
+        type: 'radar',
+        data: [
+          // 生命 攻击 暴击 防御 速度
+          { name: '关羽', value: [80, 98, 80, 70, 70] },
+          { name: '鲁班', value: [85, 70, 75, 95, 80] },
+        ]
+      }
+    }
+
+    // 仪表盘
+    const optionGauge = {
+      series: {
+        type: 'gauge',
+        // 仪表盘详情
+        detail: {
+          formatter: '{value}%'
+        },
+        data: [
+          { name: '速度', value: '80' }
+        ]
+      }
+    }
+    setInterval(() => {
+      chartGauge.setOption(optionGauge)
+      optionGauge.series.data[0].value = Math.round(Math.random() * 100)
+    }, 1000)
+
+    // 地图 异步处理
+    fetch('./data/China.json')
+      .then(res => res.json())
+      .then(data => {
+        echarts.registerMap('china', data)
+        const optionMap = {
+          title: {
+            text: '中国地图',
+            left: 'center'
+          },
+          series: {
+            type: 'map',
+            map: 'china'
+          }
+        }
+        chartMap.setOption(optionMap)
+      })
+    chart.setOption(option)
+
+    // 异步2
+    chartMap.setOption({
+      title: {
+        text: '中国地图',
+        left: 'center'
+      }
+    });
+    chartMap.showLoading()
+    fetch('./data/China.json')
+      .then((res) => res.json())
+      .then(data => {
+        chartMap.hideLoading()
+        /*注册地图*/
+        echarts.registerMap('china', data);
+        /*等请求到数据后，追加配置*/
+        chartMap.setOption({
+          series: {
+            type: 'map',
+            map: 'china',
+          }
+        });
+      })
+
+
+    // geo
+    /*获取接送文件*/
+    fetch('./data/China.json')
+      .then((res) => res.json())
+      .then(data => {
+        echarts.registerMap('china', data);
+        const option = {
+          title: {
+            text: '中国地图',
+            left: 'center',
+            textStyle: {
+              color: 'rgba(255,255,255,0.8)',
+            },
+            top: 24
+          },
+          geo: {
+            map: 'china',
+            roam: true,
+            zoom: 1,
+            itemStyle: {
+              areaColor: '#004981',
+              borderColor: '#029fd4'
+            },
+            emphasis: {
+              itemStyle: {
+                color: '#029fd4'
+              },
+              label: {
+                color: '#fff'
+              }
+            }
+          },
+          series: [{
+            name: 'pm2.5',
+            type: 'scatter',
+            coordinateSystem: 'geo',
+            data: [
+              {
+                name: '海门',
+                value: [121.15, 31.89, 9]
+              },
+              {
+                name: '鄂尔多斯',
+                value: [109.781327, 39.608266, 12]
+              },
+              {
+                name: '招远',
+                value: [120.38, 37.35, 18]
+              },
+
+            ],
+            symbolSize: function (val) {
+              return val[2];
+            },
+          }]
+        };
+        chartGeo.setOption(option);
+      })
+
+
+    chart.setOption(option)
+    chartPie.setOption(optionPie)
+    chartScatter.setOption(optionScatter)
+    chartCandlestick.setOption(optionCandlestick)
+    chartRadar.setOption(optionRadar)
+    chartGauge.setOption(optionGauge)
+
+    // DOM 事件
+    chart.on('click', (params) => {
+      console.log(params);
+    })
+
+    // 组件交互事件
+    chart.on('legendselectchanged', (params) => {
+      console.log(params);
+    })
+
+    /*使用dispatchAction 方法高亮并提示一个扇形
+    *   type 触发的行为类型
+    *       highlight 高亮
+    *       showTip 显示提示
+    *       downplay 取消高亮
+    *       hideTip 取消提示
+    *   seriesIndex 系列索引，用于寻找系列列表中的某个系列
+    *   dataIndex 数据所有，用于寻找系列中的某个元素
+    * */
+    chartPie.dispatchAction({
+      type: 'highlight',
+      seriesIndex: 0,
+      dataIndex: 0
+    })
+
+    chartPie.dispatchAction({
+      type: 'showTip',
+      seriesIndex: 0,
+      dataIndex: 1
+    })
+
+
+    // 富文本
+    const data = [
+      { name: '杨戬', value: 80, img: './images/yj.jpg' },
+      { name: '鲁班', value: 60, img: './images/lb.jpg' },
+      { name: '沈梦溪', value: 40, img: './images/smx.jpg' },
+      { name: '诸葛亮', value: 30, img: './images/zgl.jpg' }
+    ];
+
+    /*自定义标签 label
+    *   formatter 文本片段
+    *       '{样式名|文字内容}\n 换行'
+    *   文本块的样式
+    *       textBorderColor 文本描边颜色
+    *       textBorderWidth 文本描边宽度
+    *       ...
+    *   rich 富文本，在其中写入样式
+    *       width 宽
+    *       height 高
+    *       backgroundColor 背景色
+    *           image 背景图
+    *       fontSize 文字大小
+    *       lineHeight 行高
+    *       fontWeight 文本加粗
+    *       ...
+    * */
+    data.forEach(item => {
+      item.label = {
+        formatter: '{img|}\n{name|' + item.name + '}\n{val|战力:' + item.value + '}',
+        textBorderColor: '#fff',
+        textBorderWidth: 5,
+        rich: {
+          img: {
+            width: 60,
+            height: 60,
+            backgroundColor: {
+              image: item.img
+            },
+            borderColor: '#fff',
+            borderWidth: 5
+          },
+          name: {
+            fontSize: 20,
+            lineHeight: 32,
+            fontWeight: 'bold'
+          }
+        }
+      }
+    })
+
+
+    // 配置项
+    const optionRichText = {
+      title: { text: '英雄战力' },
+      series: {
+        type: 'pie',
+        data,
+        radius: '70%',
+      }
+    };
+
+    chartRichText.setOption(optionRichText)
+  </script>
+</body>
+
+</html>

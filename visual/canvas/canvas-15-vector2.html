@@ -1,0 +1,232 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-30 22:54:46
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-30 23:32:52
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>指向鼠标的线</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden
+    }
+
+    #canvas {
+      background: antiquewhite;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="./jsm/Vector2.js"></script>
+  <script>
+    const [width, height] = [window.innerWidth, window.innerHeight];
+    const canvas = document.getElementById('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    // 指向鼠标指针向量
+    // class Line {
+    //   constructor(start = new Vector2(), end = new Vector2()) {
+    //     this.start = start
+    //     this.end = end
+    //   }
+    //   draw(ctx) {
+    //     const { start, end } = this
+    //     ctx.save()
+    //     ctx.beginPath()
+    //     ctx.moveTo(start.x, start.y)
+    //     ctx.lineTo(end.x, end.y)
+    //     ctx.stroke()
+    //     ctx.beginPath()
+    //     ctx.arc(end.x, end.y, 5, 0, Math.PI * 2)
+    //     ctx.fill()
+    //     ctx.restore()
+    //   }
+    // }
+
+    // class Circle {
+    //   constructor(pos = new Vector2(), r = 0) {
+    //     this.r = r
+    //     this.pos = pos
+    //   }
+    //   draw(ctx) {
+    //     const { r, pos: { x, y } } = this
+    //     ctx.save()
+    //     ctx.setLineDash([10])
+    //     ctx.beginPath()
+    //     ctx.arc(x, y, r, 0, Math.PI * 2)
+    //     ctx.stroke()
+    //     ctx.restore()
+    //   }
+    // }
+
+    // // 线的基点 basicPos
+    // const basicPos = new Vector2(width / 2, height / 2);
+
+    // // 线的长度
+    // const r1 = 100
+    // const r2 = 200
+
+    // const line = new Line(basicPos, new Vector2(basicPos.x + r1, basicPos.y))
+    // const circle1 = new Circle(basicPos, r1)
+    // const circle2 = new Circle(basicPos, r2)
+
+    // canvas.addEventListener('mousemove', mousemoveFn)
+    // function mousemoveFn({ clientX, clientY }) {
+    //   const mousePos = new Vector2(clientX, clientY)
+    //   // 鼠标位置减去基点位置，得到鼠标相对于基点的位置 mouseSubPos
+    //   let mouseSubBasic = mousePos.sub(basicPos)
+    //   // 获取鼠标到基点的距离，计算此距离与大圆半径的比例 ratio
+    //   let ratio = mouseSubBasic.length() / r2
+    //   ratio = Math.min(ratio, 1)
+
+    //   const len = r1 * ratio
+    //   const pos = mouseSubBasic.setLength(len)
+
+    //   pos.add(basicPos)
+    //   line.end.copy(pos)
+    //   render()
+    // }
+
+    // function render() {
+    //   ctx.clearRect(0, 0, width, height)
+    //   line.draw(ctx)
+    //   circle1.draw(ctx)
+    //   circle2.draw(ctx)
+    // }
+
+
+
+    // 视线跟随
+    class BodyRect {
+      constructor(img, pos) {
+        this.img = img
+        this.pos = pos
+      }
+      draw(ctx) {
+        const { img, pos } = this;
+        ctx.save()
+        ctx.drawImage(img, pos.x, pos.y)
+        ctx.restore()
+      }
+    }
+
+    class EyeRect {
+      constructor(img, pos, offset) {
+        this.img = img
+        this.pos = pos
+        this.offset = offset
+      }
+      draw(ctx) {
+        const { img, pos, offset } = this;
+        ctx.save()
+        ctx.drawImage(img, pos.x - offset, pos.y - offset)
+        ctx.restore()
+      }
+    }
+
+    const ImgLoader = {
+      onload(imgs, fn) {
+        const imgPros = imgs.map((img) => {
+          return ImgLoader.imgPro(img)
+        })
+        Promise.all(imgPros).then(val => {
+          fn(val)
+        }, () => {
+          console.log('图片加载失败');
+        })
+      },
+      imgPro(img) {
+        return new Promise(res => {
+          img.onload = function () {
+            res(img)
+          }
+        })
+      }
+    }
+
+    // 眼睛的感知距离
+    const maxR = 50;
+    // 眼眶的半径
+    const rimR = 15;
+    // 两只眼睛相对于怪兽的位置
+    const basicPos = [new Vector2(126, 52), new Vector2(219, 59)];
+    // 眼瞳的偏移距离。drawImage 时，眼球的基点在左上角，需调整致中心
+    const eyeR = 11;
+    // 身体和眼睛
+    let monsterBody, eyeLeft, eyeRight;
+    // 移动变换的位置
+    let monsterPos = getMonsterPos();
+
+    // 怪物身体图片
+    const bodyImg = new Image();
+    bodyImg.src = './images/404.png';
+    // 眼睛图片
+    const eyeImg = new Image();
+    eyeImg.src = './images/eye.png';
+    // 当两个图片加载成功后，渲染图形
+    ImgLoader.onload([bodyImg, eyeImg], loadedFn);
+
+    function loadedFn() {
+      monsterBody = new BodyRect(bodyImg, new Vector2(0, 0))
+      eyeLeft = new EyeRect(eyeImg, basicPos[0].clone(), eyeR);
+      eyeRight = new EyeRect(eyeImg, basicPos[1].clone(), eyeR);
+      render();
+
+      // 添加鼠标移动事件
+      canvas.addEventListener('mousemove', mousemoveFn);
+      // 监听窗口尺寸的改变
+      window.addEventListener('resize', resizeFn);
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, width, height)
+      ctx.save()
+      ctx.translate(monsterPos.x, monsterPos.y);
+      monsterBody.draw(ctx);
+      eyeLeft.draw(ctx);
+      eyeRight.draw(ctx);
+      ctx.restore()
+    }
+
+    function mousemoveFn(e) {
+      const mousePos = new Vector2(event.clientX, event.clientY).sub(monsterPos);
+      // 遍历两个眼瞳
+      [eyeLeft, eyeRight].forEach((ele, ind) => {
+        // 获取鼠标到眼瞳基点的距离
+        const mouseSubObj = mousePos.clone().sub(basicPos[ind]);
+        // 以眼睛中心为基点，按照比例计算瞳孔到圆心的距离
+        const radius = Math.min(mouseSubObj.length() / maxR, 1) * rimR;
+        // 设置眼瞳位置
+        const pos = mouseSubObj.setLength(radius).add(basicPos[ind]);
+        // 为眼睛的位置赋值
+        ele.pos.copy(pos);
+      });
+      render();
+    }
+
+    // 获取怪兽位置
+    function getMonsterPos() {
+      return new Vector2(canvas.width - 500, canvas.height - 500);
+    }
+
+    function resizeFn() {
+      const [width, height] = [window.innerWidth, window.innerHeight];
+      canvas.width = width;
+      canvas.height = height;
+      monsterPos = getMonsterPos();
+      render();
+    }
+  </script>
+</body>
+
+</html>

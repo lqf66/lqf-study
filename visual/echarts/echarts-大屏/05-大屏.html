@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>大屏</title>
+    <link rel="stylesheet" href="./css/main.css">
+</head>
+
+<body>
+    <!--标题-->
+    <div id="header">西虹市经济情况可视化</div>
+    <!--内容-->
+    <div id="cont">
+        <div class="cont-edge">
+            <div id="chartL1" class="box"></div>
+            <div id="chartL2" class="box"></div>
+            <div id="chartL3" class="box"></div>
+        </div>
+        <div class="cont-center">
+            <div class="center-tit">
+                <div class="center-row">
+                    <div class="center-num">12345678</div>
+                    <div class="center-num">67890542</div>
+                </div>
+                <div class="center-row">
+                    <div class="center-text">2019年收入情况</div>
+                    <div class="center-text">2019年总支出情况</div>
+                </div>
+            </div>
+            <div class="center-cont">
+                <!--背景图-->
+                <div class="centerImg">
+                    <!--网格点-->
+                    <img class="img1" src="./images/lbx.png" alt="">
+                </div>
+                <div class="centerImg">
+                    <!--流光-->
+                    <img class="img2" src="./images/jt.png" alt="">
+                </div>
+                <!--地图容器-->
+                <div id="chartC"></div>
+            </div>
+        </div>
+        <div class="cont-edge">
+            <div id="chartR1" class="box"></div>
+            <div id="chartR2" class="box"></div>
+            <div class="box">
+                <div id="chartR3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!--引入echarts-->
+    <script src="https://lib.baomitu.com/echarts/4.7.0/echarts.min.js"></script>
+    <!--引入样式-->
+    <script src="./js/walden.js"></script>
+    <!--引入百度地图api-->
+    <script src="https://api.map.baidu.com/api?v=3.0&ak=EcMeTlWuNyyqL4GwZT5Nmlj9mtpvhE9Y"></script>
+    <!--引入bmap 组件-->
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/bmap.min.js"></script>
+    <!--中国地图-->
+    <script src='./js/China.js'></script>
+    <!--绘制图表-->
+    <script>
+
+        // 折线图
+        {
+            const source = [
+                ['年', '2014', '2015', '2016', '2017', '2018', '2019', '2020'],
+                ['收入', 820, 932, 901, 934, 1290, 1330, 1520],
+                ['支出', 200, 632, 601, 634, 850, 1000, 1100]
+            ];
+
+            const chart = echarts.init(document.querySelector('#chartL1'), 'walden')
+
+            const option = {
+                title: {
+                    text: '西虹市人民收入增长情况'
+                },
+                dataset: { source },
+                xAxis: {
+                    type: 'category'
+                },
+                yAxis: {},
+                series: [
+                    {
+                        type: 'line'
+                    }
+                ]
+            }
+
+            chart.setOption(option)
+        }
+
+        // 饼图
+        {
+            const source = [
+                { value: 5000, name: '旅游' },
+                { value: 4500, name: '饮食' },
+                { value: 6500, name: '服装' },
+                { value: 3500, name: '电影' },
+                { value: 2500, name: '其它' }
+            ];
+
+            const chart = echarts.init(document.querySelector('#chartL2'), 'walden')
+
+            const option = {
+                title: {
+                    text: '西虹市人民衣食住行支出比',
+                    left: 'center'
+                },
+                tooltip: {
+                    // 字符串模版
+                    // formatter: '{d}%'
+                    formatter: ({ percent }) => {
+                        console.log(percent)
+                        return Math.round(percent) + '%'
+                    }
+                },
+                dataset: { source },
+                series: {
+                    type: 'pie',
+                    center: ['50%', '55%'],
+                    roseType: 'radius',
+                    radius: ['40%', '70%']
+                }
+            }
+            chart.setOption(option)
+        }
+
+        // 散点图
+        {
+            const chart = echarts.init(document.querySelector('#chartL3'), 'walden')
+
+            const dimensions = ['收入', '年龄', '人口', '住址', '时间'];
+
+            const option = {
+                title: {
+                    text: '西虹市人民收入和年龄关系',
+                    left: 'center'
+                },
+                xAxis: {
+                    type: 'value',
+                    name: '年龄'
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '收入'
+                },
+                tooltip: {},
+                dataset: { dimensions },
+                series: {
+                    type: 'scatter',
+                    symbolSize: 3,
+                    encode: {
+                        x: '年龄',
+                        y: 0,
+                    },
+                    itemStyle: {
+                        opacity: 0.5
+                    }
+                }
+            }
+
+
+            fetch('./lib/table.json')
+                .then((res) => res.json())
+                .then(data => {
+                    option.dataset.source = data;
+                    chart.setOption(option);
+                })
+
+        }
+
+        // 雷达图
+        {
+            const data = [
+                {
+                    name: '预算分配',
+                    value: [43000, 45000, 42000, 45000, 40000, 49000],
+                },
+                {
+                    name: '实际开销',
+                    value: [30000, 34000, 55000, 35000, 32000, 31000],
+                }
+            ];
+
+            const indicator = [
+                { name: '销售', min: 0, max: 60000 },
+                { name: '管理', min: 0, max: 60000 },
+                { name: '信息技术', min: 0, max: 60000 },
+                { name: '客服', min: 0, max: 60000 },
+                { name: '研发', min: 0, max: 60000 },
+                { name: '市场', min: 0, max: 60000 }
+            ]
+
+            const chart = echarts.init(document.querySelector('#chartR1'), 'walden')
+
+            const option = {
+                title: {
+                    text: '西虹市财务开销'
+                },
+                tooltip: {},
+                legend: {
+                    data: ['预算分配', '实际开销'],
+                    left: 'left',
+                    top: 32,
+                    orient: 'vertical'
+                },
+                radar: { indicator },
+                series: {
+                    type: 'radar',
+                    data
+                }
+            }
+            chart.setOption(option)
+        }
+
+        // 柱状图
+        {
+            const source = [
+                ['时间', '小麦', '玉米', '高粱'],
+                [2017, 1000, 800, 900],
+                [2018, 500, 650, 800],
+                [2019, 800, 900, 1200],
+            ];
+
+            const chart = echarts.init(document.querySelector('#chartR2'), 'walden')
+
+            const option = {
+                title: {
+                    text: '西虹市农作物收成',
+                    left: 'center'
+                },
+                tooltip: {},
+                legend: {
+                    top: 30
+                },
+                dataset: { source },
+                xAxis: {
+                    type: 'category'
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        id: 1,
+                        type: 'bar'
+                    },
+                    {
+                        id: 2,
+                        type: 'bar'
+                    },
+                    {
+                        id: 3,
+                        type: 'bar'
+                    }
+                ]
+            }
+
+            chart.setOption(option)
+
+            const imgXm = new Image()
+            imgXm.src = './images/xm.jpg'
+
+            const imgYm = new Image()
+            imgYm.src = './images/ym.jpg'
+
+            const imgGl = new Image()
+            imgGl.src = './images/gl.jpg'
+
+            Promise.all([imgPro(imgXm), imgPro(imgYm), imgPro(imgGl)]).then(() => {
+                chart.setOption({
+                    series: [
+                        {
+                            id: 1,
+                            color: {
+                                image: imgXm
+                            }
+                        },
+                        {
+                            id: 2,
+                            color: {
+                                image: imgYm
+                            }
+                        },
+                        {
+                            id: 3,
+                            color: {
+                                image: imgGl
+                            }
+                        },
+                    ]
+                })
+            })
+
+            function imgPro(img) {
+                return new Promise(res => {
+                    img.onload = function () {
+                        res(img)
+                    }
+                })
+            }
+        }
+
+        // 百度地图
+        {
+            const chart = echarts.init(document.querySelector('#chartR3'), 'walden')
+
+            const option = {
+                title: {
+                    text: '西虹市的空气质量',
+                    left: 'center',
+                    top: 12,
+                },
+                bmap: {
+                    center: [116.32, 32.22],
+                    zoom: 6,
+                    mapStyleV2: {
+                        styleId: '5453dc64d711215271444d4abeaf6b44'
+                    },
+                    roam: true
+                },
+                series: [
+                    {
+                        id: 1,
+                        type: 'scatter',
+                        coordinateSystem: 'bmap',
+                        symbolSize: (data) => {
+                            return data[2] / 10
+                        }
+                    },
+                    {
+                        id: 2,
+                        type: 'effectScatter',
+                        coordinateSystem: 'bmap',
+                        symbolSize: (data) => {
+                            return data[2] / 10
+                        }
+                    },
+                ]
+            }
+            chart.setOption(option)
+
+            fetch('./lib/pm.json')
+                .then(res => res.json())
+                .then(data => {
+                    const len = data.length
+                    const dataMax = data.splice(len - 5, len)
+                    chart.setOption({
+                        series: [
+                            {
+                                id: 1,
+                                data
+                            },
+                            {
+                                id: 2,
+                                data: dataMax
+                            }
+                        ]
+                    })
+                })
+
+            const map = chart.getModel().getComponent('bmap').getBMap()
+            var point = new BMap.Point(116.404, 39.915);
+            var marker = new BMap.Marker(point);        // 创建标注
+            map.addOverlay(marker);
+
+        }
+
+        // echarts 地图
+        {
+            const chart = echarts.init(document.querySelector('#chartC'), 'walden')
+
+            const option = {
+                title: {
+                    text: '西虹市不同地区的平均收入',
+                    textStyle: {
+                        fontSize: 24
+                    },
+                    left: 'center',
+                    top: 32,
+                },
+                tooltip: {},
+                geo: {
+                    map: 'china',
+                    zoom: 1,
+                    roam: true,
+                    itemStyle: {
+                        areaColor: 'rgba(0, 29, 132, 0.8)',
+                        borderColor: '#02c0ff'
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowColor: '#000',
+                            shadowOffsetY: 30,
+                            shadowBlur: 30
+                        }
+                    }
+                },
+                series: {
+                    id: 1,
+                    type: 'scatter',
+                    coordinateSystem: 'geo',
+                    symbolSize: (data) => {
+                        return data[2] / 15
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            color: 'yellow'
+                        }
+                    }
+                }
+            }
+            chart.setOption(option)
+
+            fetch('./lib/income.json')
+                .then(res => res.json())
+                .then(data => {
+                    dataLen = data.length
+                    chart.setOption({
+                        series: {
+                            id: 1,
+                            data
+                        }
+                    })
+                    setInterval(anim, 1000)
+                })
+
+            let curInd = 0
+            let dataLen = null
+
+            function anim() {
+                chart.dispatchAction({
+                    type: 'downplay',
+                    seriesIndex: 0,
+                    dataIndex: curInd
+                })
+
+                curInd = (curInd + 1) % dataLen
+
+                chart.dispatchAction({
+                    type: 'highlight',
+                    seriesIndex: 0,
+                    dataIndex: curInd
+                })
+
+                chart.dispatchAction({
+                    type: 'showTip',
+                    seriesIndex: 0,
+                    dataIndex: curInd
+                })
+            }
+        }
+    </script>
+</body>
+
+</html>

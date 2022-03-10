@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "es5", // es3,es5默认使用commonjs
+    "watch": true,
+    "strictNullChecks": true, // 可能为null时会进行提示
+    "noImplicitAny": true, // 函数隐式any报错
+    "lib": ["es6", "dom"],
+    "module": "commonjs", // none commonjs amd umd es6 es2015 esnext System
+    "allowJs": true, // 允许加载js文件
+    "allowSyntheticDefaultImports": true, // 未设置默认导出模块设置默认导入
+    "esModuleInterop": true, // 生成__importDefault函数，处理default的默认导出
+    "resolveJsonModule": true, // 可以处理json模块
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}
+// ** 所有目录包括子目录 * 所有文件
+// tsc 默认找当前目录的tsconfig.json    tsc --project(-p) path

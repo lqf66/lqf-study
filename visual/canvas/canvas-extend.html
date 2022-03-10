@@ -1,0 +1,231 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-09-30 11:30:17
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-09-30 22:53:33
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>canvas扩展</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #canvas {
+      background: antiquewhite;
+    }
+  </style>
+</head>
+
+<body>
+  <embed id="svg" src="./images/mount.svg" width="300" height="300" type="image/svg+xml"
+    pluginspage="http://www.adobe.com/svg/viewer/install/" />
+
+  <canvas id="canvas"></canvas>
+  <img id="img" src="" alt="">
+  <script>
+    const [width, height] = [window.innerWidth, window.innerHeight]
+    const canvas = document.querySelector('#canvas');
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d');
+
+    // // 图像平滑 imageSmoothingEnabled
+    // const img = new Image();
+    // img.src = './images/chess.jpg';
+    // img.onload = function () {
+    //   const { width, height } = img;
+    //   // ctx.drawImage(img, 100, 100, width * 10, height * 10);
+    //   ctx.imageSmoothingEnabled = false;
+    //   // ctx.drawImage(img, 100, 100 + height * 10, width * 10, height * 10);
+    // };
+
+
+
+    // // 1像素的线 -- 正常画出来是2像素的线，并且透明度为0.5
+    // ctx.save()
+    // ctx.beginPath()
+    // ctx.lineWidth = 1
+    // ctx.moveTo(50, 150.5) // 居中显示
+    // ctx.lineTo(400, 150.5)
+    // ctx.stroke()
+    // ctx.restore()
+
+    // ctx.save()
+    // ctx.translate(0.5, 0.5)
+    // ctx.beginPath();
+    // ctx.lineWidth = 1;
+    // ctx.moveTo(50, 250);
+    // ctx.lineTo(400, 250);
+    // ctx.stroke();
+    // ctx.restore()
+
+
+
+    // // 适配设备分辨率 用css压缩canvas画布
+    // const ratio = window.devicePixelRatio // 1.25
+
+    // // 让canvas 的画布尺寸乘以像素比，即将canvas 画布变大
+    // canvas.width = width * ratio
+    // canvas.height = height * ratio
+
+    // // 让canvas 坐标系的缩放和画布的缩放同步
+    // ctx.scale(ratio, ratio)
+
+    // // 设置canvas css尺寸，定义画布的视觉大小 canvas 在浏览器中的大小是不能变的
+    // canvas.style.width = width + 'px'
+    // canvas.style.height = height + 'px'
+
+
+
+    // // canvas转图片跨域 下载图片
+    // const img = new Image();
+    // img.src = 'https://img.kaikeba.com/70350130700202jusm.png';
+    // img.setAttribute("crossOrigin", 'Anonymous');
+
+    // img.onload = function () {
+    //   ctx.drawImage(img, 0, 0);
+    //   // const imgURL = canvas.toDataURL();
+    //   // console.log('imgURL: ', imgURL);
+    //   // document.querySelector('#img').setAttribute('src', imgURL);
+    //   const a = document.createElement('a');
+    //   a.innerText = '下载canvas图片';
+    //   a.download = 'canvas----图片'; // 下载的文件名
+    //   a.href = canvas.toDataURL();
+    //   // document.body.append(a)
+    //   a.click();
+    //   a.remove();
+    // }
+
+
+
+    // //  new Path2D() 建立路径对象
+    // //  在路径对象中建立图形
+    // //  将路径对象作为fill() 或stroke() 方法的参数，绘制路径
+    // //  isPointInPath isPointInStroke不可在这上面使用
+    // const path2D = new Path2D();
+    // path2D.arc(300, 300, 200, 0, Math.PI * 3);
+
+    // ctx.lineWidth = 20;
+    // ctx.strokeStyle = '#00acec';
+    // ctx.beginPath();
+    // // ctx.arc(300,300,200,0,Math.PI*3);
+    // // ctx.stroke()
+    // ctx.stroke(path2D);
+
+
+
+    // // filter 滤镜
+    // const img = new Image();
+    // img.src = './images/dog.jpg';
+    // img.onload = function () {
+    //   //原始图
+    //   ctx.drawImage(img, 0, 0);
+    //   //滤镜 可覆盖
+    //   ctx.filter = 'blur(5px)';
+    //   // 亮度
+    //   ctx.filter = 'brightness(0.5)';
+    //   // 对比度
+    //   ctx.filter = 'contrast(2)';
+    //   // 投影
+    //   ctx.filter = 'drop-shadow(30px 30px 30px #000)';
+    //   // 灰度
+    //   ctx.filter = 'grayscale(1)';
+    //   // 色调
+    //   ctx.filter = 'hue-rotate(180deg)';
+    //   // 图像反色处理
+    //   ctx.filter = 'invert(1)';
+    //   // 透明度
+    //   ctx.filter = 'opacity(0.5)';
+    //   // 饱和度
+    //   ctx.filter = 'saturate(20)';
+    //   // 深褐色处理--怀旧风格
+    //   ctx.filter = 'sepia(1)';
+    //   // 不使用filter
+    //   ctx.filter = 'none';
+    //   // 多滤镜
+    //   ctx.filter = 'blur(2px) sepia(1)';
+    //   //后处理过的图片
+    //   ctx.drawImage(img, 400, 0);
+    // }
+
+
+
+    // // putImageData 与合成
+    // const imgDt = ctx.createImageData(400, 400);
+    // imgDt.data.forEach((ele, ind) => {
+    //   imgDt.data[ind] = 255;
+    // })
+
+    // // 1. globalAlpha 失效,要使用透明度需要在像素中设置
+    // // ctx.globalAlpha=1;
+    // // ctx.putImageData(imgDt,0,0);
+
+    // // 2. 路径裁剪失效,完全不可用 clip
+
+    // // 3. 全局合成 globalCompositeOperation 只有当其为已绘图形才可以合成, 将绘不可以
+    // // 已绘图形
+    // ctx.putImageData(imgDt, 0, 0);
+    // ctx.globalCompositeOperation = 'destination-in';
+    // //将绘图形
+    // ctx.beginPath();
+    // ctx.arc(400, 400, 200, 0, Math.PI * 2);
+    // ctx.fill();
+
+
+
+    // // svg 绘制
+    // // embed 获取svg容器
+    // const embed = document.querySelector('embed');
+
+    // // getSVGDocument() 获取svg 容器中的svg文档对象
+    // // querySelector() 通过svg文档对象获取其中的多边形节点
+    // // parsePoints() 解析多边形节点中的顶点数据
+    // // draw() 所以顶点数据，绘制canvas 图形
+    // window.onload = function () {
+    //   const svgDom = embed.getSVGDocument();
+    //   const poly = svgDom.querySelector('#poly');
+    //   console.log('poly', poly);
+    //   const points = parsePoints(poly.getAttribute('points'));
+    //   console.log('points', points);
+    //   // 绘制
+    //   ctx.beginPath();
+    //   points.forEach(p => {
+    //     ctx.lineTo(p[0], p[1]);
+    //   })
+    //   ctx.fill();
+    // }
+    // // 解析svg中的polygon
+    // // arr 用空格将points 属性切割为数组，如['x,y',...]
+    // // 遍历vertices，获取其中每个元素
+    // // 如果元素不为空
+    // // vertice 将字符串类型的点位转化为整数类型的点位，如 '1.2,2.8' → [1,3]
+    // function parsePoints(points) {
+    //   const vertices = [];
+    //   let arr = points.split(' ');
+    //   for (let ele of arr) {
+    //     if (ele) {
+    //       const vertice = ele.split(',').map((num) => {
+    //         return Math.round(num);
+    //       });
+    //       vertices.push(vertice);
+    //     }
+    //   }
+    //   return vertices;
+    // }
+
+
+
+    // 关闭canvas透明度
+    // const ctx = canvas.getContext('2d', { alpha: false });
+
+  </script>
+</body>
+
+</html>

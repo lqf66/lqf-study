@@ -1,0 +1,151 @@
+<!--
+ * @Author: Lqf
+ * @Date: 2021-10-08 16:18:46
+ * @LastEditors: Lqf
+ * @LastEditTime: 2021-10-18 11:28:20
+ * @Description: 我添加了修改
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>better-scroll</title>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    #wrap {
+      margin: auto;
+      /* 使用 better-scroll 时 wrap 必须有一个固定高度 */
+      width: 300px;
+      height: 80vh;
+      border: 1px solid #000;
+      overflow: hidden;
+    }
+
+    #list {
+      width: 200%;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #list li {
+      font: 14px/30px "宋体";
+      border-bottom: 1px solid #000;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="wrap">
+    <ul id="list"></ul>
+  </div>
+
+  <script src="../js/bscroll.js"></script>
+  <script>
+    {
+      let list = document.querySelector('#list')
+      list.innerHTML = [...(".".repeat(100))].map((item, index) => {
+        return `<li class="list-item">这是第${index}个li</li>`
+      }).join('')
+
+      let wrap = document.querySelector('#wrap')
+      let bscroll = new BScroll(wrap, {
+        // 简单配置
+        probeType: 3, // 滑动时可触发scroll事件
+        startX: -10, // 不设置scrollX会自动回弹
+        startY: -100,
+        scrollX: true,
+        scrollY: true,
+        tap: true, // 派发手指单击指令
+        click: true,
+        bounce: false, // 回弹动画效果
+        momentum: false, // 滑动惯性
+        preventDefaultException: {
+          // 以下选项开启浏览器默认行为
+          tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT)$/
+        },
+        // 滚轮
+        wheel: {
+          selectedIndex: 0, // 默认选中项
+          rotate: 10, // 项之间旋转角度
+          adjustTime: 100, // 缓动动画时长
+          wheelWrapperClass: 'wrap',
+          wheelItemClass: 'list-item', // 与wrapper类名和wrapper内的子类名相对应
+          wheelDisabledItemClass: 'disabled-item'
+        },
+        // 缩放
+        zoom: {
+          start: 1,
+          min: .5,
+          max: 2
+        }
+      })
+
+      // 简单方法
+      // bscroll.refresh() // 重新计算
+      // bscroll.scrollTo(x, y, time, easing) 绝对值
+      // bscroll.scrollBy(x, y, time, easing) 差值
+      // bscroll.scrollToElement(el, time, offsetX, offsetY, easing) 差值
+      // bscroll.stop(); // 停止滑动
+
+
+      // 基础事件
+      bscroll.on("beforeScrollStart", function (e) {
+        console.log(e, "开始滚动之前")
+      })
+      bscroll.on("scrollStart", function (e) {
+        console.log(e, "开始滚动")
+      })
+      bscroll.on("scroll", function (e) {
+        console.log(e, "滚动中")
+      })
+      bscroll.on("scrollCancel", function (e) {
+        console.log(e, "滚动取消")
+      })
+      bscroll.on("scrollEnd", function (e) {
+        console.log(e, "滚动结束")
+      })
+      bscroll.on("touchEnd", function (e) {
+        console.log(e, "抬起")
+      })
+      bscroll.on("flick", function (e) {
+        console.log(e, "轻抚")
+      })
+
+      // 滚轮方法
+      bscroll.on("scrollEnd", () => {
+        console.log("完成选中")
+        console.log(bscroll.getSelectedIndex()) // 获取当前的索引
+        bscroll.wheelTo(3) // 跳转至索引
+      })
+
+      // 缩放事件
+      bscroll.on("zoomStart", () => {
+        wrap.style.background = "yellow"
+      })
+      bscroll.on("zoomEnd", () => {
+        wrap.style.background = "red"
+      })
+    }
+
+
+    // better-scroll2新增
+    // outOfBoundaryDampingFactor 阻尼
+    // specifiedIndexAsContent 选择的子元素
+    // pending 是否处于动画中
+    // observeDOM  
+    // mousewheelStart mousewheelMove mousewheelEnd
+    // wheel.restorePosition();
+    // slideWillChange slidePageChanged
+    // NestedScroll groupId
+    // InfinityScroll
+  </script>
+</body>
+
+</html>
