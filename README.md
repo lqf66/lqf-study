@@ -1,4 +1,4 @@
-# lqf_stydy
+# lqf_study
 
 - [mobile](./mobile/README.md)
 - [visual](./visual/README.md)
